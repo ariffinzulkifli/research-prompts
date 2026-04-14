@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Prompt Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface2: #f0ede6;
+  --border: #e2ddd6;
+  --border2: #d4cfc7;
+  --ink: #1a1714;
+  --ink2: #3d3730;
+  --ink3: #7a6f65;
+  --ink4: #a89f96;
+  --accent: #c1440e;
+  --accent2: #1a5c8a;
+  --accent3: #2a7a4a;
+  --gold: #b8860b;
+  --tag-bg: #f0ede6;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow2: 0 8px 32px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Mulish', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 16px; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.app { position: relative; z-index: 1; }
+
+header {
+  background: var(--ink); color: var(--bg); padding: 0;
+  display: flex; align-items: stretch; border-bottom: 3px solid var(--accent);
+}
+.header-left { padding: 24px 16px 24px 24px; border-right: 1px solid rgba(255,255,255,0.1); margin-right: 0; width: 320px; flex-shrink: 0; box-sizing: border-box; }
+.header-title { font-family: 'Lora', serif; font-size: 22px; letter-spacing: -0.3px; line-height: 1.2; }
+.header-title span { color: var(--accent); font-style: italic; }
+
+
+
+
+.layout { display: flex; min-height: 100vh; }
+
+.left-panel {
+  width: 320px; flex-shrink: 0; border-right: 1px solid var(--border);
+  background: var(--surface); padding: 24px 0;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.panel-section { padding: 0 16px; margin-bottom: 24px; }
+.panel-section-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink4); padding: 0 8px; margin-bottom: 8px; }
+.module-btn {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: var(--radius); cursor: pointer; border: 1px solid transparent;
+  background: transparent; text-align: left; font-family: 'Mulish', sans-serif; transition: all 0.12s;
+}
+.module-btn:hover { background: var(--surface2); border-color: var(--border); }
+.module-btn.active { background: var(--ink); border-color: var(--ink); }
+.module-btn.active .mod-num { color: var(--accent); }
+.module-btn.active .mod-name { color: white; }
+.mod-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink4); width: 24px; flex-shrink: 0; }
+.mod-icon { font-size: 14px; flex-shrink: 0; opacity: 0.6; }
+.mod-name { font-size: 14px; font-weight: 500; color: var(--ink2); flex: 1; line-height: 1.3; }
+.mod-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink4); background: var(--surface2); padding: 2px 8px; border-radius: 10px; }
+.module-btn.active .mod-count { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+
+.panel-divider { height: 1px; background: var(--border); margin: 8px 16px 16px; }
+
+.right-panel { flex: 1; padding: 40px 48px; overflow-y: auto; }
+
+.module-header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.module-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.module-heading { font-family: 'Lora', serif; font-size: 34px; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 8px; }
+.module-desc { font-size: 16px; color: var(--ink3); line-height: 1.7; }
+
+.task-list { display: flex; flex-direction: column; gap: 16px; }
+
+.task-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.15s; box-shadow: var(--shadow); }
+.task-card:hover { box-shadow: var(--shadow2); }
+.task-header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; user-select: none; transition: background 0.12s; }
+.task-header:hover { background: var(--surface2); }
+.task-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink4); width: 28px; flex-shrink: 0; }
+.task-name { font-size: 16px; font-weight: 600; color: var(--ink); flex: 1; }
+.task-tags { display: flex; gap: 6px; align-items: center; }
+.task-tag { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 5px 10px; border-radius: 3px; background: var(--tag-bg); color: var(--ink3); border: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; }
+.task-tag.input { background: #eef6ee; color: var(--accent3); border-color: #c8e6c8; }
+.task-tag.output { background: #e8f2f8; color: var(--accent2); border-color: #b8d4e8; }
+.task-chevron { font-size: 14px; color: var(--ink4); transition: transform 0.2s; flex-shrink: 0; }
+.task-card.open .task-chevron { transform: rotate(90deg); }
+.task-card.open .task-header { background: var(--surface2); }
+.task-body { display: none; border-top: 1px solid var(--border); }
+.task-card.open .task-body { display: block; }
+
+/* PRE-USE CHECKLIST */
+.checklist-section {
+  padding: 16px 20px;
+  background: #fffdf7;
+  border-bottom: 1px solid var(--border);
+}
+.checklist-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.checklist-label::before { content: '▶'; font-size: 10px; }
+.checklist-subtitle {
+  font-size: 14px; color: var(--ink3); line-height: 1.6; margin-bottom: 14px;
+  padding: 10px 14px; background: rgba(184,134,11,0.06); border-radius: 4px;
+  border-left: 3px solid var(--gold);
+}
+.checklist-items { display: flex; flex-direction: column; gap: 8px; }
+.checklist-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 15px; color: var(--ink2); line-height: 1.6;
+}
+.checklist-item input[type="checkbox"] {
+  margin-top: 3px; flex-shrink: 0; cursor: pointer;
+  accent-color: var(--accent3); width: 16px; height: 16px;
+}
+.checklist-item-content { flex: 1; }
+.checklist-item-content label { cursor: pointer; display: inline; }
+.checklist-item-content label strong { color: var(--ink); font-weight: 600; }
+.checklist-help-toggle {
+  font-size: 13px; color: var(--accent2); cursor: pointer; border: none;
+  background: none; padding: 2px 0; font-family: 'Mulish', sans-serif;
+  text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px;
+  margin-top: 2px; display: inline-block;
+}
+.checklist-help-toggle:hover { color: var(--accent); }
+.checklist-help-box {
+  display: none; margin-top: 6px; padding: 12px 14px;
+  background: #f0f7ff; border-radius: 4px; border: 1px solid #d0e3f5;
+  font-size: 14px; color: var(--ink2); line-height: 1.7;
+}
+.checklist-help-box.open { display: block; }
+.checklist-help-box strong { color: var(--ink); }
+.checklist-help-box code {
+  display: block; margin-top: 8px; padding: 10px 12px;
+  background: var(--ink); color: #e8e4dc; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  line-height: 1.6; white-space: pre-wrap;
+}
+.placeholder-reminder {
+  font-size: 13px; color: var(--ink3); padding: 10px 20px 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.placeholder-reminder span { color: #f0a060; font-weight: 600; }
+
+.prompt-section { padding: 20px; }
+.prompt-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ink4); margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.copy-btn {
+  font-size: 13px; padding: 7px 18px; border-radius: 3px; border: 1px solid var(--border2);
+  background: var(--surface); color: var(--ink3); cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; transition: all 0.12s; text-transform: none; letter-spacing: 0;
+}
+.copy-btn:hover { background: var(--ink); color: white; border-color: var(--ink); }
+.copy-btn.copied { background: var(--accent3); color: white; border-color: var(--accent3); }
+
+.prompt-box {
+  background: var(--ink); border-radius: var(--radius); padding: 20px 22px;
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8;
+  color: #e8e4dc; white-space: pre-wrap; word-break: break-word;
+}
+.prompt-box .placeholder { color: #f0a060; font-style: italic; }
+.prompt-box .instruction { color: #8ab4d4; }
+
+.task-divider { height: 1px; background: var(--border); margin: 0 20px; }
+.tip-section { padding: 14px 20px; background: #fdfaf5; display: flex; gap: 10px; align-items: flex-start; }
+.tip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.tip-text { font-size: 14px; color: var(--ink3); line-height: 1.6; }
+.tip-text strong { color: var(--ink2); font-weight: 600; }
+
+/* MEGA PROMPT MODULE */
+.mega-intro {
+  background: var(--ink); color: var(--bg); border-radius: var(--radius);
+  padding: 24px 28px; margin-bottom: 28px;
+  border-left: 4px solid var(--gold);
+}
+.mega-intro-title { font-family: 'Lora', serif; font-size: 20px; margin-bottom: 8px; color: white; }
+.mega-intro-body { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.65); }
+.mega-intro-body strong { color: var(--gold); }
+
+.mega-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+.mega-type-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow);
+}
+.mega-type-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: var(--shadow2); }
+.mega-type-card.selected { border-color: var(--gold); background: #fffdf5; }
+.mtc-icon { font-size: 24px; margin-bottom: 10px; }
+.mtc-title { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+.mtc-desc { font-size: 14px; color: var(--ink3); line-height: 1.5; }
+
+.mega-prompt-area { display: none; }
+.mega-prompt-area.visible { display: block; }
+.mega-section-title {
+  font-family: 'Lora', serif; font-size: 20px; color: var(--ink);
+  margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+}
+.mega-section-desc { font-size: 15px; color: var(--ink3); line-height: 1.6; margin-bottom: 16px; }
+
+.mega-prompt-box {
+  background: var(--ink); border-radius: var(--radius); padding: 24px;
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8;
+  color: #e8e4dc; white-space: pre-wrap; word-break: break-word;
+  max-height: 600px; overflow-y: auto;
+}
+.mega-prompt-box .placeholder { color: #f0a060; font-style: italic; }
+.mega-prompt-box .section-head { color: #8ab4d4; font-weight: 500; }
+.mega-prompt-box .rule { color: #90cc90; }
+.mega-copy-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; margin-bottom: 12px;
+}
+.mega-copy-bar-label { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink4); }
+.mega-copy-btn {
+  padding: 8px 20px; border-radius: 3px; border: none;
+  background: var(--gold); color: white; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  font-weight: 500; transition: all 0.15s;
+}
+.mega-copy-btn:hover { background: #a07608; }
+.mega-copy-btn.copied { background: var(--accent3); }
+
+.mega-anatomy {
+  margin-top: 24px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+}
+.anatomy-title { font-family: 'Lora', serif; font-size: 18px; color: var(--ink); margin-bottom: 14px; }
+.anatomy-list { display: flex; flex-direction: column; gap: 8px; }
+.anatomy-item { display: flex; gap: 12px; font-size: 15px; color: var(--ink2); line-height: 1.5; }
+.anatomy-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 5px 10px;
+  border-radius: 3px; flex-shrink: 0; margin-top: 2px; white-space: nowrap;
+}
+.at-role { background: rgba(138,180,212,0.15); color: var(--accent2); border: 1px solid rgba(138,180,212,0.3); }
+.at-context { background: rgba(144,204,144,0.15); color: var(--accent3); border: 1px solid rgba(144,204,144,0.3); }
+.at-task { background: rgba(240,160,96,0.15); color: #c07010; border: 1px solid rgba(240,160,96,0.3); }
+.at-rules { background: rgba(184,134,11,0.15); color: var(--gold); border: 1px solid rgba(184,134,11,0.3); }
+.at-format { background: rgba(193,68,14,0.1); color: var(--accent); border: 1px solid rgba(193,68,14,0.2); }
+
+/* Welcome screen */
+.welcome { max-width: 100%; }
+.welcome-heading { font-family: 'Lora', serif; font-size: 36px; letter-spacing: -1px; line-height: 1.2; margin-bottom: 16px; }
+.welcome-heading em { color: var(--accent); font-style: italic; }
+.welcome-body { font-size: 17px; color: var(--ink3); line-height: 1.8; margin-bottom: 32px; }
+.welcome-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow); position: relative; }
+.welcome-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow2); }
+
+.wc-icon { font-size: 22px; margin-bottom: 10px; }
+
+.wc-title { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+.wc-desc { font-size: 14px; color: var(--ink3); line-height: 1.5; }
+
+.how-to { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+
+.ai-tools { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); }
+.ai-tools-title { font-family: 'Lora', serif; font-size: 20px; margin-bottom: 14px; color: var(--ink); }
+.ai-tools-desc { font-size: 15px; color: var(--ink3); line-height: 1.7; margin-bottom: 16px; }
+.ai-tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.ai-tool-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; transition: all 0.15s; background: var(--surface2);
+}
+.ai-tool-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow2); }
+.ai-tool-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+.ai-tool-feature { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--accent2); background: rgba(26,92,138,0.08); padding: 3px 8px; border-radius: 3px; }
+.ai-tool-desc { font-size: 13px; color: var(--ink3); text-align: center; line-height: 1.5; }
+.how-to-title { font-family: 'Lora', serif; font-size: 20px; margin-bottom: 12px; color: var(--ink); }
+.how-to-steps { display: flex; flex-direction: column; gap: 8px; }
+.how-step { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; color: var(--ink2); line-height: 1.5; }
+.how-step-num { width: 26px; height: 26px; background: var(--ink); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.site-footer {
+  text-align: center; padding: 24px 20px; font-size: 13px; color: var(--ink4);
+  border-top: 1px solid var(--border); background: var(--surface);
+}
+
+@media (max-width: 768px) {
+  .left-panel { display: none; }
+  .right-panel { padding: 24px 20px; }
+  .welcome-grid { grid-template-columns: 1fr 1fr; }
+  .mega-grid { grid-template-columns: 1fr; }
+  .header-left { width: auto; padding: 24px 20px; }
+  .ai-tools-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="header-left">
+    <div class="header-title">Research <span>Prompt</span> Library</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="left-panel">
+    <div class="panel-section">
+      <div class="panel-section-label">Overview</div>
+      <button class="module-btn active" id="nav-home" onclick="showHome()">
+        <span class="mod-num">-</span><span class="mod-icon">⊞</span>
+        <span class="mod-name">Getting Started</span>
+      </button>
+    </div>
+    <div class="panel-divider"></div>
+    <div class="panel-section">
+      <div class="panel-section-label">Prompt Templates</div>
+      <button class="module-btn" id="nav-1" onclick="showModule(1)">
+        <span class="mod-num">01</span><span class="mod-icon">🔍</span>
+        <span class="mod-name">Reference Discovery</span><span class="mod-count">4</span>
+      </button>
+      <button class="module-btn" id="nav-2" onclick="showModule(2)">
+        <span class="mod-num">02</span><span class="mod-icon">📄</span>
+        <span class="mod-name">Reference Processing</span><span class="mod-count">4</span>
+      </button>
+      <button class="module-btn" id="nav-3" onclick="showModule(3)">
+        <span class="mod-num">03</span><span class="mod-icon">🔗</span>
+        <span class="mod-name">Reference Synthesis</span><span class="mod-count">4</span>
+      </button>
+      <button class="module-btn" id="nav-4" onclick="showModule(4)">
+        <span class="mod-num">04</span><span class="mod-icon">✍️</span>
+        <span class="mod-name">Paper Drafting</span><span class="mod-count">8</span>
+      </button>
+      <button class="module-btn" id="nav-5" onclick="showModule(5)">
+        <span class="mod-num">05</span><span class="mod-icon">📎</span>
+        <span class="mod-name">Citation Formatting</span><span class="mod-count">4</span>
+      </button>
+      <button class="module-btn" id="nav-6" onclick="showModule(6)">
+        <span class="mod-num">06</span><span class="mod-icon">🔬</span>
+        <span class="mod-name">Quality Review</span><span class="mod-count">4</span>
+      </button>
+    </div>
+    <div class="panel-divider"></div>
+    <div class="panel-section">
+      <div class="panel-section-label">Advanced</div>
+      <button class="module-btn" id="nav-7" onclick="showModule(7)">
+        <span class="mod-num">07</span><span class="mod-icon">⚡</span>
+        <span class="mod-name">Mega Prompt Builder</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="right-panel" id="right-panel"></div>
+</div>
+<footer class="site-footer">Created with ♥︎ by Ts. Mohamad Ariffin Zulkifli and his AI</footer>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const modules = {
+  1: {
+    title: "Reference Discovery", icon: "🔍", eyebrow: "MODULE 01",
+    desc: "Use these prompts before you start collecting references. Build a rigorous search strategy, generate database queries and identify gaps in existing literature.",
+    tasks: [
+      {
+        name: "Search Strategy Builder",
+        tags: [["input","Topic + Objectives"],["output","Database Strategy"]],
+        checklist: [
+          { text: "Write your <strong>research topic</strong> in one clear sentence",
+            help: "Not sure how to phrase your topic? Ask your AI:<code>I am interested in [broad area]. Help me write a focused research topic in one sentence that is specific enough for a systematic literature search.</code>" },
+          { text: "List your <strong>research objectives</strong> - ideally 3 to 5 bullet points",
+            help: "If you have a topic but no objectives yet, ask your AI:<code>My research topic is: [your topic]. Help me write 3 to 5 clear research objectives using action verbs like explore, examine, evaluate, develop or compare.</code>" },
+          { text: "Know your <strong>target databases</strong> (Scopus, WoS, IEEE Xplore, etc.)",
+            help: "Not sure which databases suit your field? Ask your AI:<code>I am researching [your topic] in the field of [your discipline]. Which academic databases should I search, and what are the strengths of each?</code>" },
+          { text: "Decide on your <strong>date range</strong> (e.g. 2015 to present)",
+            help: "A common starting point is the last 5 to 10 years. For fast-moving fields (e.g. AI, digital health), use a shorter range. For established topics, you may need to go further back to capture foundational work." },
+          { text: "Note any <strong>language or geographic filters</strong> you need",
+            help: "Think about whether your study focuses on a specific country or region, and whether you can only read papers in certain languages. If unsure, start with English-language papers and add geographic terms to your search string." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic research librarian with deep knowledge of systematic search methods.
+
+[TASK]
+Help me build a rigorous search strategy for my research topic.
+
+[MY RESEARCH TOPIC]
+[PASTE YOUR TOPIC HERE]
+
+[MY RESEARCH OBJECTIVES]
+[LIST YOUR OBJECTIVES HERE]
+
+[PLEASE PROVIDE]
+1. Recommended databases (e.g. Scopus, Web of Science, IEEE Xplore, PubMed)
+2. Primary keywords and synonyms
+3. Boolean search strings ready to use in each database
+4. Inclusion and exclusion criteria
+5. Suggested date range and language filters
+
+Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> Before you begin your literature search. The more specific your topic and objectives, the better the strategy you will receive."
+      },
+      {
+        name: "Keyword & Boolean Query Generator",
+        tags: [["input","Research Question"],["output","Search Strings"]],
+        checklist: [
+          { text: "Have your <strong>research question</strong> written out in full",
+            help: "A research question should be specific and answerable. Ask your AI:<code>My research topic is: [your topic]. Help me write a clear research question that is specific, researchable and aligned with [quantitative/qualitative/mixed methods] research.</code>" },
+          { text: "Know which <strong>databases</strong> you will search",
+            help: "If you used the Search Strategy Builder above, you already have this. Otherwise, common databases include Scopus, Web of Science, Google Scholar, IEEE Xplore and PubMed." },
+          { text: "Note any <strong>discipline-specific terms</strong> common in your field",
+            help: "Every field has its own jargon. Ask your AI:<code>What are the commonly used academic terms and keywords in [your field] related to [your topic]? Include synonyms and alternative phrases used in journal articles.</code>" }
+        ],
+        prompt: `[ROLE]
+You are an expert in academic database searching and information retrieval.
+
+[TASK]
+Generate comprehensive Boolean search queries for my research question.
+
+[MY RESEARCH QUESTION]
+[PASTE YOUR RESEARCH QUESTION HERE]
+
+[PLEASE PROVIDE]
+1. Core concept clusters with synonyms and related terms
+2. Boolean search strings formatted for:
+   - Scopus
+   - Web of Science
+   - Google Scholar
+   - IEEE Xplore
+3. Truncation and wildcard operators where appropriate
+4. Field codes (Title, Abstract, Keywords) for each database
+5. Tips for narrowing or broadening results
+
+Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> Once you have a clear research question. Paste the full question - partial or vague questions produce weaker queries."
+      },
+      {
+        name: "Source Relevance Evaluator",
+        tags: [["input","Abstract + Your Focus"],["output","Include / Exclude"]],
+        checklist: [
+          { text: "Paste <strong>one paper's title and abstract</strong> at a time for best results",
+            help: "Copy the title, authors, year and abstract from the database (Scopus, WoS, etc.). One paper per evaluation gives the most accurate assessment." },
+          { text: "Write a 2 to 3 sentence summary of your <strong>research focus</strong>",
+            help: "Not sure how to describe your focus? Ask your AI:<code>My research topic is: [your topic]. Help me write a 2 to 3 sentence research focus statement that I can use to evaluate whether other papers are relevant to my study.</code>" },
+          { text: "Have your <strong>inclusion/exclusion criteria</strong> in mind before evaluating",
+            help: "These are the rules for what papers you keep or reject. Ask your AI:<code>I am doing a literature review on [your topic]. Help me define clear inclusion and exclusion criteria covering date range, language, methodology type, geographic scope and publication type.</code>" }
+        ],
+        prompt: `[ROLE]
+You are a critical academic reviewer with expertise in systematic literature evaluation.
+
+[TASK]
+Evaluate whether the paper below is relevant to my research focus.
+
+[MY RESEARCH FOCUS]
+[BRIEFLY DESCRIBE YOUR RESEARCH FOCUS - 2 TO 3 SENTENCES]
+
+[PAPER TO EVALUATE]
+Title: [PAPER TITLE]
+Authors: [AUTHORS]
+Year: [YEAR]
+Abstract: [PASTE ABSTRACT HERE]
+
+[PLEASE ASSESS]
+1. Topical alignment (High / Medium / Low) - explain why
+2. Methodological relevance to my study
+3. Recency and contextual fit
+4. Quality indicators (journal type, citations if known)
+5. Recommendation: Include / Exclude / Marginal - with clear justification
+
+Use UK English throughout. Be direct and concise.`,
+        tip: "<strong>When to use:</strong> When you have a large pool of search results. Evaluate one abstract at a time for a focused, accurate assessment."
+      },
+      {
+        name: "Literature Gap Identifier",
+        tags: [["input","3–10 Abstracts"],["output","Research Gaps"]],
+        checklist: [
+          { text: "Collect at least <strong>3 to 5 relevant abstracts</strong> (10 is ideal for richer gap analysis)",
+            help: "Use your database search results. Copy the abstracts of papers you have already decided to include. If you have not evaluated them yet, use the Source Relevance Evaluator above first." },
+          { text: "Label each abstract clearly as <strong>[Paper 1], [Paper 2]</strong>, etc.",
+            help: "Use a simple format: [Paper 1: Smith, 2022] followed by the abstract. This helps the AI refer back to specific papers in its analysis." },
+          { text: "Write a clear 2-sentence description of <strong>what your study is trying to do</strong>",
+            help: "If you are unsure, ask your AI:<code>My research topic is: [your topic]. Help me write a 2-sentence description of what my study aims to achieve, suitable for framing a gap analysis.</code>" },
+          { text: "Note papers from <strong>different years</strong> to capture temporal gaps",
+            help: "Include a mix of older foundational papers and recent work. This helps identify how the field has evolved and where new gaps have appeared." }
+        ],
+        prompt: `[ROLE]
+You are a senior academic researcher specialising in systematic literature analysis.
+
+[TASK]
+Identify research gaps from the set of paper abstracts I am providing below.
+
+[MY RESEARCH ANGLE]
+[BRIEFLY DESCRIBE WHAT YOUR STUDY IS TRYING TO DO]
+
+[PAPER ABSTRACTS]
+Separate each paper with the label [PAPER 1], [PAPER 2], etc.
+
+[PAPER 1]
+[PASTE ABSTRACT HERE]
+
+[PAPER 2]
+[PASTE ABSTRACT HERE]
+
+[ADD MORE AS NEEDED]
+
+[PLEASE IDENTIFY]
+1. Common themes across the papers
+2. Methodological patterns or limitations
+3. Geographic, sectoral or contextual gaps
+4. Theoretical or conceptual gaps
+5. Recommended research directions that would address these gaps
+
+Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> After collecting your initial paper set. This output directly supports your research justification and Introduction section."
+      }
+    ]
+  },
+  2: {
+    title: "Reference Processing", icon: "📄", eyebrow: "MODULE 02",
+    desc: "Use these prompts to extract value from individual papers. Summarise efficiently, pull key arguments, understand methodologies and evaluate sources critically.",
+    tasks: [
+      {
+        name: "Paper Summariser",
+        tags: [["input","Abstract or Full Text"],["output","Structured Summary"]],
+        checklist: [
+          { text: "Have the <strong>full abstract</strong> ready to paste, or the full paper text if available",
+            help: "The more text you provide, the better the summary. At minimum, paste the abstract. For a richer output, include the introduction, methodology and conclusion sections." },
+          { text: "Process <strong>one paper at a time</strong> for accurate, focused summaries",
+            help: "Batching multiple papers in one prompt reduces quality. Run this prompt once per paper and save each output separately." },
+          { text: "Note the <strong>author, year and journal</strong> so you can match summaries to your reference list later",
+            help: "Write these at the top of your pasted text, e.g. 'Smith et al. (2023), Journal of Information Systems'. This makes it easy to link the summary back to your reference manager." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic summariser with experience across multiple research disciplines.
+
+[TASK]
+Provide a structured summary of the paper I am sharing below.
+
+[PAPER TEXT]
+[PASTE THE ABSTRACT OR FULL PAPER TEXT HERE]
+
+[SUMMARY STRUCTURE REQUIRED]
+1. Research Question / Objective
+2. Methodology (brief: design, sample, analysis)
+3. Key Findings (list the main ones)
+4. Conclusions and Implications
+5. Limitations stated by the authors
+6. Relevance Score: [1–10] with one-sentence justification
+
+Keep each section concise. Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> When you need a quick structured summary before deciding whether to read the full paper. Works well with abstract plus introduction and conclusion."
+      },
+      {
+        name: "Key Argument Extractor",
+        tags: [["input","Paper Text"],["output","Argument Structure"]],
+        checklist: [
+          { text: "Paste the <strong>Introduction, Discussion and Conclusion</strong> sections for best results",
+            help: "These sections contain the main arguments. The methodology section is less useful here. If the full paper is short, you can paste the entire text." },
+          { text: "This works best on papers you have already decided to <strong>include</strong> in your review",
+            help: "Use the Source Relevance Evaluator first if you are not sure whether to include this paper." },
+          { text: "Have a note ready on <strong>how this paper relates to your argument</strong> so you can act on the output",
+            help: "After you receive the extracted arguments, you will need to decide how to use them. Think: does this paper support, contradict or extend your own argument?" }
+        ],
+        prompt: `[ROLE]
+You are an expert in academic argumentation analysis and critical reading.
+
+[TASK]
+Extract and map the argumentative structure of the paper below.
+
+[PAPER TEXT]
+[PASTE THE INTRODUCTION, DISCUSSION AND/OR CONCLUSION SECTIONS HERE]
+
+[PLEASE EXTRACT]
+1. Central thesis or main argument
+2. Supporting arguments (numbered list)
+3. Types of evidence used (empirical, theoretical, statistical, case study, etc.)
+4. Theoretical frameworks or models cited
+5. Counter-arguments the paper acknowledges or addresses
+6. Strength of the overall argument: Strong / Moderate / Weak - explain briefly
+
+Use UK English throughout. Present as a clean structured list.`,
+        tip: "<strong>When to use:</strong> When you need to understand the intellectual contribution of a paper, particularly for your Discussion or Literature Review."
+      },
+      {
+        name: "Methodology Extractor",
+        tags: [["input","Methodology Section"],["output","Method Profile"]],
+        checklist: [
+          { text: "Paste the <strong>full methodology section</strong> if available, or the abstract plus methods summary",
+            help: "The methodology section is usually titled 'Research Methodology', 'Methods' or 'Research Design'. If the paper does not have a separate section, the abstract often contains a brief methods description." },
+          { text: "Use this across <strong>multiple papers</strong> to identify the dominant methodology in your field",
+            help: "Run this on 3 to 5 papers in your area. You will start to see patterns - for example, most studies use surveys, or most use qualitative case studies. This helps justify your own choice." },
+          { text: "Save outputs so you can <strong>compare methodologies side by side</strong> when justifying your own approach",
+            help: "Paste each output into a spreadsheet or document. When writing your own Methodology section, you can reference these to say 'consistent with [Author, Year]'." }
+        ],
+        prompt: `[ROLE]
+You are a research methodology specialist with expertise across quantitative, qualitative and mixed methods research.
+
+[TASK]
+Extract and describe the methodology profile of the paper below.
+
+[PAPER TEXT]
+[PASTE THE METHODOLOGY SECTION OR FULL PAPER HERE]
+
+[PLEASE EXTRACT]
+1. Research paradigm (positivist, interpretivist, pragmatist, etc.)
+2. Research design (e.g. survey, case study, experiment, DSR, grounded theory)
+3. Data collection methods and instruments
+4. Sample or population details (size, selection criteria, context)
+5. Data analysis techniques
+6. Validity, reliability or trustworthiness measures
+7. Methodological limitations acknowledged
+
+Be precise and use correct methodological terminology. Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> When justifying your own methodology choice. Run this on 3 to 5 key papers in your field to see what the dominant approach is."
+      },
+      {
+        name: "Critical Weakness Spotter",
+        tags: [["input","Abstract or Sections"],["output","Critical Review"]],
+        checklist: [
+          { text: "Paste the <strong>abstract plus any available sections</strong> - more text gives better critique",
+            help: "At minimum, paste the abstract. For a deeper critique, include the methodology, results and discussion sections. The more the AI can see, the more weaknesses it can identify." },
+          { text: "Have a specific reason in mind: are you <strong>positioning your study against this paper's weaknesses</strong>?",
+            help: "Think about why you are critiquing this paper. Usually it is to show that your study addresses a gap or limitation that this paper has. This helps you write a stronger justification." },
+          { text: "Use this for papers you plan to <strong>critique by name</strong> in your Literature Review or Discussion",
+            help: "You do not need to critique every paper. Focus on key papers that are directly related to your study and where identifying weaknesses strengthens your own argument." }
+        ],
+        prompt: `[ROLE]
+You are a rigorous academic peer reviewer with high standards for research quality.
+
+[TASK]
+Critically evaluate the paper below and identify its weaknesses.
+
+[PAPER TEXT]
+[PASTE THE ABSTRACT AND ANY AVAILABLE SECTIONS HERE]
+
+[PLEASE IDENTIFY]
+1. Methodological limitations (beyond what authors admit)
+2. Sampling issues (size, selection bias, representativeness)
+3. Generalisation problems
+4. Unsupported or overstated claims
+5. Theoretical or conceptual gaps
+6. Potential researcher bias
+7. Overall rating: Robust / Moderate / Weak - with brief justification
+
+Be direct and rigorous. Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> When writing a critical literature review or positioning your study against weaknesses of prior work."
+      }
+    ]
+  },
+  3: {
+    title: "Reference Synthesis", icon: "🔗", eyebrow: "MODULE 03",
+    desc: "Connect ideas across multiple papers. Build thematic maps, comparative tables and trace how knowledge has developed over time.",
+    tasks: [
+      {
+        name: "Cross-Paper Theme Mapper",
+        tags: [["input","3+ Paper Summaries"],["output","Theme Map"]],
+        checklist: [
+          { text: "Prepare summaries or key points from at least <strong>3 papers</strong> (5 to 8 is ideal)",
+            help: "Use the Paper Summariser from the Reference Processing module to generate these. Each summary should cover the paper's objective, method and key findings." },
+          { text: "Label each clearly as <strong>[Paper 1: Author, Year]</strong> before pasting",
+            help: "This format helps the AI reference specific papers in the theme map. Example: [Paper 1: Rahman, 2022] followed by your summary text." },
+          { text: "Write 1 sentence on your <strong>research focus</strong> so the AI can assess alignment",
+            help: "If unsure, ask your AI:<code>My research is about [broad area]. Help me write one sentence that captures my specific research focus for use in a thematic analysis.</code>" },
+          { text: "Have <strong>Reference Processing</strong> summaries ready - use those outputs directly as input here",
+            help: "The outputs from Paper Summariser and Key Argument Extractor can be pasted directly as input. This creates a connected workflow across modules." }
+        ],
+        prompt: `[ROLE]
+You are an expert in academic literature synthesis and thematic analysis.
+
+[TASK]
+Identify and map the common themes, contradictions and complementary findings across the papers I am providing.
+
+[MY RESEARCH FOCUS]
+[BRIEFLY STATE YOUR RESEARCH TOPIC OR ANGLE]
+
+[PAPER SUMMARIES]
+Label each paper clearly as [Paper 1: Author, Year], [Paper 2: Author, Year], etc.
+
+[Paper 1: Author, Year]
+[PASTE SUMMARY OR KEY POINTS HERE]
+
+[Paper 2: Author, Year]
+[PASTE SUMMARY OR KEY POINTS HERE]
+
+[ADD MORE AS NEEDED]
+
+[PLEASE MAP]
+1. Shared themes - list which papers support each theme
+2. Contradictions or ongoing debates between papers
+3. Complementary findings that build on each other
+4. Emerging patterns or trends across the set
+5. Synthesis statement: what does this body of literature collectively argue?
+
+Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> This is your core Literature Review drafting tool. Run this after Reference Processing to find the narrative thread across your sources."
+      },
+      {
+        name: "Comparative Analysis Table",
+        tags: [["input","Paper Abstracts"],["output","Comparison Table"]],
+        checklist: [
+          { text: "Prepare abstracts or summaries for at least <strong>5 to 8 papers</strong> for a meaningful comparison",
+            help: "More papers give a richer comparison. Use your Reference Processing outputs or copy abstracts directly from your database search results." },
+          { text: "Label each paper with <strong>Author and Year</strong> before pasting",
+            help: "Use the format [Paper 1: Author, Year]. This makes the comparison table easy to cross-reference with your reference list." },
+          { text: "Decide on your <strong>comparison criteria</strong> in advance (methodology, context, findings, etc.)",
+            help: "Not sure what to compare? Ask your AI:<code>I am reviewing literature on [your topic]. What are the most useful comparison dimensions for a comparative literature table in this field?</code>" },
+          { text: "State the <strong>topic you are comparing across</strong> so the AI can apply the right lens",
+            help: "Be specific. Instead of 'digital transformation', say 'digital transformation adoption barriers in manufacturing SMEs'. The more specific, the more relevant the comparison." }
+        ],
+        prompt: `[ROLE]
+You are an academic analyst experienced in structured comparative literature reviews.
+
+[TASK]
+Create a detailed comparative analysis of the papers I am providing below.
+
+[COMPARISON CRITERIA - OPTIONAL]
+[STATE ANY SPECIFIC CRITERIA YOU WANT COMPARED, OR LEAVE BLANK FOR DEFAULT]
+
+[PAPERS TO COMPARE]
+Label each as [Paper 1], [Paper 2], etc. with Author and Year.
+
+[Paper 1: Author, Year]
+[PASTE ABSTRACT OR SUMMARY]
+
+[Paper 2: Author, Year]
+[PASTE ABSTRACT OR SUMMARY]
+
+[ADD MORE AS NEEDED]
+
+[PLEASE COMPARE ACROSS THESE DIMENSIONS]
+- Author and Year
+- Research Focus / Objective
+- Research Design / Methodology
+- Context / Setting / Sample
+- Key Findings
+- Limitations
+- Relevance to [YOUR TOPIC - FILL IN]
+
+Present as a clear structured comparison. Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> When you need to compare multiple studies side by side. Paste the output into your notes or appendix as a reference table."
+      },
+      {
+        name: "Theoretical Framework Mapper",
+        tags: [["input","Papers or Theory List"],["output","Framework Map"]],
+        checklist: [
+          { text: "List <strong>all theories and frameworks</strong> you have encountered across your reading so far",
+            help: "Not sure what counts as a framework? Ask your AI:<code>What are the commonly used theoretical frameworks in [your field] for studying [your topic]? List them with a brief description of each.</code>" },
+          { text: "Or paste <strong>3 to 5 paper texts or abstracts</strong> that are theoretically rich",
+            help: "Look for papers that explicitly mention theories by name (e.g. TAM, UTAUT, TOE, Resource-Based View). These are usually in the Introduction or Literature Review sections." },
+          { text: "Note your own <strong>research paradigm</strong> so the AI can check alignment",
+            help: "Not sure about your paradigm? Ask your AI:<code>I am doing [quantitative/qualitative/mixed methods/DSR] research on [your topic]. What research paradigm (positivist, interpretivist, pragmatist, design science) best fits my approach, and why?</code>" },
+          { text: "Have a working idea of your own <strong>proposed framework</strong> if any - mention it in the input",
+            help: "If you do not have one yet, that is fine. You can use this prompt to discover which frameworks exist and then decide. Mention 'I have not chosen a framework yet' in your input." }
+        ],
+        prompt: `[ROLE]
+You are an expert in research theory and conceptual framework development.
+
+[TASK]
+Map the theoretical frameworks present across the papers or list I am providing.
+
+[SOURCE INPUT]
+Option A: Paste paper texts or abstracts below.
+Option B: List the theories and frameworks mentioned across your papers.
+
+[INPUT HERE]
+[PASTE PAPERS OR LIST THEORIES / FRAMEWORKS]
+
+[PLEASE MAP]
+1. Primary theories and frameworks identified
+2. How each theory is applied in the literature
+3. Relationships or overlaps between frameworks
+4. The dominant theoretical paradigm in this field
+5. Theoretical gaps - what perspective is missing?
+6. Recommendation: which framework(s) best suit a study on [YOUR TOPIC - FILL IN]?
+
+Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> When developing your own theoretical or conceptual framework. Helps you make a justified, informed choice."
+      },
+      {
+        name: "Chronological Development Tracer",
+        tags: [["input","Papers with Years"],["output","Timeline Narrative"]],
+        checklist: [
+          { text: "List papers <strong>with the year clearly stated</strong> for each entry",
+            help: "Use the format: Author (Year) - brief description. Example: Rogers (2003) - Diffusion of Innovations theory. The year is essential for chronological ordering." },
+          { text: "Include papers spanning <strong>at least 10 years</strong> for a meaningful chronological trace",
+            help: "If you only have recent papers, ask your AI:<code>What are the foundational papers and key milestones in the development of [your topic] over the past 20 years?</code>" },
+          { text: "Note your <strong>research topic</strong> so the AI can frame the development correctly",
+            help: "State your topic clearly so the timeline narrative is focused. A vague topic produces a vague timeline." },
+          { text: "Include <strong>foundational early papers</strong> as well as recent ones - not just the latest literature",
+            help: "Every field has seminal works. If you are unsure which papers are foundational, ask your AI:<code>What are the seminal papers in [your field] on [your topic]? List the most cited foundational works.</code>" }
+        ],
+        prompt: `[ROLE]
+You are an academic historian of ideas with expertise in tracing the intellectual development of research fields.
+
+[TASK]
+Trace the chronological development of my research topic based on the papers below.
+
+[RESEARCH TOPIC]
+[STATE YOUR TOPIC]
+
+[PAPERS - include year clearly for each]
+[Paper 1: Author (Year)] - [title or brief description]
+[Paper 2: Author (Year)] - [title or brief description]
+[ADD MORE AS NEEDED]
+
+[PLEASE TRACE]
+1. Early foundational work - who established the basis?
+2. Key turning points - when did the field shift?
+3. Periods of rapid development or debate
+4. Recent directions - where is the field heading?
+5. Evolution of key definitions, concepts or methods over time
+6. A narrative timeline paragraph suitable for inclusion in a Literature Review
+
+Use UK English throughout.`,
+        tip: "<strong>When to use:</strong> When writing the opening narrative of your Literature Review. The chronological trace gives your reader context for how the field evolved."
+      }
+    ]
+  },
+  4: {
+    title: "Paper Drafting", icon: "✍️", eyebrow: "MODULE 04",
+    desc: "Draft every section of your research paper step by step. Recommended sequence: Methods → Results → Discussion → Introduction → Abstract. Each prompt is self-contained.",
+    tasks: [
+      {
+        name: "Abstract",
+        tags: [["input","Study Overview"],["output","~250 Word Abstract"]],
+        checklist: [
+          { text: "<strong>Write this last</strong> - only after all other sections are complete",
+            help: "The abstract summarises every section of your paper. If you have not finished writing your Methods, Results and Discussion, the abstract will be incomplete or inaccurate." },
+          { text: "Have a clear 1-sentence summary of your <strong>research problem, method, findings and conclusion</strong>",
+            help: "If you struggle to summarise, ask your AI:<code>Here are my completed paper sections: [paste key sentences from each section]. Help me write a one-sentence summary covering the problem, method, findings and conclusion.</code>" },
+          { text: "Know your <strong>target journal's abstract word limit</strong> before running this prompt",
+            help: "Check your target journal's author guidelines. Most journals require 150 to 300 words. If unsure, 250 words is a safe default for most fields." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer with experience publishing in high-impact journals.
+
+[TASK]
+Draft a structured abstract of approximately 250 words for my research paper.
+
+[MY STUDY OVERVIEW]
+Research problem: [DESCRIBE THE PROBLEM]
+Objective: [STATE YOUR OBJECTIVE]
+Methodology: [BRIEFLY DESCRIBE YOUR METHOD]
+Key findings: [LIST 2 TO 3 KEY FINDINGS]
+Main conclusion: [STATE YOUR MAIN CONCLUSION]
+Implications: [PRACTICAL OR THEORETICAL IMPLICATIONS]
+
+[ABSTRACT STRUCTURE]
+Background / Context (1–2 sentences)
+Objective (1 sentence)
+Methods (2–3 sentences)
+Results (2–3 sentences)
+Conclusion and Implications (1–2 sentences)
+
+Write in formal UK English. Third person. Past tense for methods and results.`,
+        tip: "<strong>Write this last.</strong> The abstract is the final section you draft but the first your readers see. Only fill in the overview after all other sections are complete."
+      },
+      {
+        name: "Introduction",
+        tags: [["input","Background + Objectives"],["output","600–900 Words"]],
+        checklist: [
+          { text: "Write this <strong>after Methods and Results</strong> - you frame the Introduction around your actual contribution",
+            help: "Writing the Introduction first often leads to rewriting it later. Once your Methods and Results are done, you know exactly what your study contributes - and the Introduction can frame that precisely." },
+          { text: "Prepare 2 to 4 <strong>key references</strong> with author, year and a one-line description of each",
+            help: "Pick the most important papers that set the scene for your study. Format them as: Smith (2021) - found that X is a barrier to Y. These will appear in the background paragraphs." },
+          { text: "Have your <strong>research objectives</strong> written out clearly - at least 3",
+            help: "If you have not written objectives yet, ask your AI:<code>My research topic is: [your topic]. I am using [methodology]. Help me write 3 to 5 research objectives that are specific, measurable and achievable.</code>" },
+          { text: "Know your paper's <strong>overall structure</strong> to write the final paragraph accurately",
+            help: "The last paragraph of an Introduction typically says: 'This paper is structured as follows: Section 2 reviews the literature, Section 3 describes the methodology...' List your section headings before running the prompt." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer skilled in crafting compelling research introductions.
+
+[TASK]
+Draft an Introduction section of approximately 700 words for my research paper.
+
+[MY INPUTS]
+Topic and broad context: [DESCRIBE THE BROAD FIELD AND WHY IT MATTERS]
+The specific problem: [WHAT SPECIFIC PROBLEM OR GAP DOES THIS STUDY ADDRESS?]
+Key prior work: [LIST 2 TO 4 IMPORTANT REFERENCES: Author, Year, What They Found]
+Research objectives: [LIST YOUR OBJECTIVES]
+Paper structure: [BRIEFLY DESCRIBE HOW YOUR PAPER IS ORGANISED]
+
+[INTRODUCTION STRUCTURE]
+1. Broad context - establish the field and its importance
+2. Narrow to the specific problem - what is missing or unresolved?
+3. Justify the study - why now, why here?
+4. State research objectives clearly
+5. Brief overview of paper structure (last paragraph)
+
+Formal UK English. Academic tone. Avoid excessive jargon.`,
+        tip: "<strong>Write this after Methods and Results.</strong> Once you know exactly what you found and how, you can frame the Introduction precisely around that contribution."
+      },
+      {
+        name: "Literature Review",
+        tags: [["input","Themes + Key Papers"],["output","1000–1500 Words"]],
+        checklist: [
+          { text: "Complete <strong>Reference Synthesis - Theme Mapping</strong> first - use that output to define your themes here",
+            help: "The Cross-Paper Theme Mapper in Reference Synthesis identifies themes across your papers. Use those themes directly as input here so your Literature Review is grounded in actual synthesis." },
+          { text: "Prepare at least <strong>8 to 12 papers</strong> with author, year and key contribution noted",
+            help: "For each paper, write: Author (Year) - one sentence on what they found. Example: Lee (2020) - identified three barriers to digital transformation in SMEs." },
+          { text: "Write out the <strong>research gap</strong> you are addressing in one clear sentence",
+            help: "If you are unsure about the gap, ask your AI:<code>Based on these papers: [list your key papers and their findings]. What research gap exists that a new study could address?</code>" },
+          { text: "Decide on your <strong>synthesis approach</strong>: thematic, chronological or hybrid",
+            help: "Thematic groups papers by topic. Chronological traces development over time. Hybrid uses themes but organises within each theme by time. Most Literature Reviews use thematic or hybrid." },
+          { text: "Note any <strong>debates or contradictions</strong> in the literature you want to highlight",
+            help: "Look for papers that disagree with each other. For example, one study finds X is effective while another finds it is not. These debates strengthen your Literature Review and justify your study." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer specialising in critical literature reviews.
+
+[TASK]
+Draft a thematic-chronological Literature Review of approximately 1200 words.
+
+[MY INPUTS]
+Research topic: [STATE YOUR TOPIC]
+Key themes to cover: [LIST 3 TO 5 THEMES]
+Important papers per theme:
+  - Theme 1: [Author, Year - key contribution]
+  - Theme 2: [Author, Year - key contribution]
+  - Theme 3: [Author, Year - key contribution]
+Debates or contradictions: [ANY KNOWN DISAGREEMENTS IN THE LITERATURE]
+The gap this study addresses: [CLEARLY STATE THE GAP]
+
+[REVIEW STRUCTURE]
+1. Opening - establish the scope and approach of the review
+2. Theme by theme synthesis - not paper by paper summaries
+3. Highlight debates and contradictions
+4. Identify the gap clearly in the closing paragraph
+5. Transition sentence pointing to your study
+
+Formal UK English. Cite as (Author, Year) throughout. No personal opinions.`,
+        tip: "<strong>Synthesise, do not summarise.</strong> Group ideas by theme, not by paper. A well-written Literature Review argues for why your study is needed."
+      },
+      {
+        name: "Methodology",
+        tags: [["input","Research Design Details"],["output","600–900 Words"]],
+        checklist: [
+          { text: "Know your <strong>research paradigm</strong> clearly before running this prompt",
+            help: "Not sure about your paradigm? Ask your AI:<code>I am conducting [quantitative/qualitative/mixed methods/DSR] research on [your topic]. Which research paradigm fits my approach? Explain positivism, interpretivism, pragmatism and design science in simple terms.</code>" },
+          { text: "Have your <strong>sample details</strong> ready: size, selection method and context",
+            help: "Write down: how many participants or cases, how you selected them (random, purposive, convenience), and where (which organisation, country, sector). If you have not decided yet, ask your AI for guidance on appropriate sample sizes for your method." },
+          { text: "List your <strong>data collection instruments</strong> (questionnaire, interview guide, observation sheet, etc.)",
+            help: "If you are unsure which instrument fits, ask your AI:<code>I am doing [your method] research on [your topic]. What data collection instruments are commonly used for this type of study?</code>" },
+          { text: "Note your <strong>analysis technique</strong> and any software used (SPSS, NVivo, Atlas.ti, etc.)",
+            help: "Common pairings: quantitative surveys use SPSS or SmartPLS; qualitative interviews use NVivo or Atlas.ti; mixed methods use a combination. State what you used and the specific analysis type (e.g. SEM-PLS, thematic analysis)." },
+          { text: "Have your <strong>ethical approval details</strong> ready if applicable",
+            help: "If your study involves human participants, you likely need ethics approval. Note your ethics committee reference number, consent process and how you protected participant anonymity." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer specialising in research methodology sections.
+
+[TASK]
+Draft a rigorous Methodology section of approximately 750 words for my research paper.
+
+[MY INPUTS]
+Research paradigm: [e.g. Positivist / Interpretivist / Pragmatist / Design Science]
+Research design: [e.g. Survey / Case Study / Experiment / DSR / Mixed Methods]
+Data collection method: [e.g. Questionnaire / Interview / Observation / Document Analysis]
+Sample or participants: [SIZE, SELECTION METHOD, CONTEXT]
+Analysis technique: [e.g. SEM / Thematic Analysis / Statistical Analysis / Artefact Development]
+Validity / reliability measures: [WHAT DID YOU DO TO ENSURE QUALITY?]
+Ethical considerations: [IRB APPROVAL, CONSENT, ANONYMITY - IF APPLICABLE]
+
+[METHODOLOGY STRUCTURE]
+1. Research philosophy - justify your paradigm
+2. Research design - explain and justify your choice
+3. Data collection - how, what, from whom
+4. Data analysis - step by step procedure
+5. Quality measures - validity, reliability, trustworthiness
+6. Ethical considerations
+
+Formal UK English. Justify every methodological choice with reference to established practice.`,
+        tip: "<strong>Justify every choice.</strong> Do not just describe what you did - explain why. Reviewers expect every decision to be grounded in established research practice."
+      },
+      {
+        name: "Results",
+        tags: [["input","Your Findings"],["output","600–800 Words"]],
+        checklist: [
+          { text: "List your <strong>key findings clearly</strong> with supporting data or evidence for each",
+            help: "Write each finding as a simple statement with data. Example: '72% of respondents reported barriers to adoption' or 'Theme 1: Lack of training was mentioned by 8 out of 12 participants'." },
+          { text: "Describe any <strong>tables or figures</strong> you want referenced (e.g. Table 1 shows X)",
+            help: "If you have tables or figures, describe what each one shows. Example: 'Table 1 - demographic profile of respondents; Figure 2 - SEM path analysis results'. The AI will reference them in the text." },
+          { text: "Note any <strong>unexpected findings</strong> separately so they receive appropriate attention",
+            help: "Unexpected findings are often the most interesting part of your study. Flag them clearly so the AI gives them appropriate emphasis. You will interpret them in the Discussion section." },
+          { text: "Do <strong>not include interpretation</strong> here - that belongs in the Discussion section",
+            help: "Results = what you found. Discussion = what it means. Keep them separate. If you catch yourself writing 'this suggests that...' or 'this is because...', move that to the Discussion." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer experienced in presenting research findings clearly and objectively.
+
+[TASK]
+Draft a Results section of approximately 700 words for my research paper.
+
+[MY FINDINGS]
+Finding 1: [DESCRIBE FINDING WITH DATA / EVIDENCE]
+Finding 2: [DESCRIBE FINDING WITH DATA / EVIDENCE]
+Finding 3: [DESCRIBE FINDING WITH DATA / EVIDENCE]
+[ADD MORE AS NEEDED]
+
+Figures / Tables: [DESCRIBE ANY FIGURES OR TABLES - e.g. "Table 1 shows response distribution by sector"]
+Unexpected findings: [ANY SURPRISING RESULTS?]
+
+[RESULTS STRUCTURE]
+1. Brief opening - remind reader of the data source
+2. Present each finding systematically
+3. Reference tables and figures by number
+4. Report data objectively - NO interpretation here
+5. End with a brief transition to Discussion
+
+Formal UK English. Past tense. Objective tone. No discussion or conclusions in this section.`,
+        tip: "<strong>Report only - do not interpret.</strong> The Results section presents what you found. Save all interpretation for the Discussion section."
+      },
+      {
+        name: "Discussion",
+        tags: [["input","Findings + Prior Studies"],["output","900–1200 Words"]],
+        checklist: [
+          { text: "Have your <strong>Results section complete</strong> before drafting Discussion",
+            help: "The Discussion interprets your Results. You cannot discuss findings you have not yet reported. Complete the Results section first." },
+          { text: "For each key finding, identify <strong>at least one prior study it supports or contradicts</strong>",
+            help: "Go through your Literature Review papers. For each of your findings, ask: which prior study agrees or disagrees? Write it as: 'Finding 1 supports Smith (2021) who also found...' or 'contradicts Lee (2020) who argued...'" },
+          { text: "Prepare your <strong>theoretical and practical implications</strong> as bullet points",
+            help: "Not sure about implications? Ask your AI:<code>My study found: [list your key findings]. What are the theoretical implications (contribution to knowledge) and practical implications (real-world application) of these findings?</code>" },
+          { text: "List your study's <strong>limitations honestly</strong> - reviewers will find them if you do not",
+            help: "Common limitations include: small sample size, single country context, cross-sectional design, self-reported data, limited generalisability. Be honest - acknowledging limitations shows maturity as a researcher." },
+          { text: "Have 3 to 5 <strong>references with Author and Year</strong> ready for comparison in this section",
+            help: "Pick papers whose findings you will compare with yours. These are usually the same papers from your Literature Review that are most directly related to your study." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer known for writing rich, intellectually compelling Discussion sections.
+
+[TASK]
+Draft a Discussion section of approximately 1000 words for my research paper.
+
+[MY INPUTS]
+My key findings: [LIST YOUR MAIN FINDINGS]
+How they relate to prior studies:
+  - Finding 1 supports / contradicts [Author, Year] because [REASON]
+  - Finding 2 extends [Author, Year] by [HOW]
+  - Finding 3 is unexpected because [REASON / POSSIBLE EXPLANATION]
+Theoretical implications: [WHAT DO YOUR FINDINGS MEAN FOR THEORY?]
+Practical implications: [WHAT DO YOUR FINDINGS MEAN FOR PRACTICE?]
+Limitations: [LIST YOUR STUDY'S LIMITATIONS]
+
+[DISCUSSION STRUCTURE]
+1. Restate the most important findings (briefly)
+2. Interpret findings in relation to prior literature
+3. Explain unexpected or contradictory findings
+4. Theoretical contributions
+5. Practical recommendations
+6. Limitations of this study
+
+Formal UK English. Show depth of thinking - connect findings to meaning.`,
+        tip: "<strong>This is the intellectual heart of your paper.</strong> A strong Discussion does not just compare findings to others - it explains what your findings mean and why they matter."
+      },
+      {
+        name: "Conclusion",
+        tags: [["input","Contributions + Future Work"],["output","400–600 Words"]],
+        checklist: [
+          { text: "Have your <strong>Discussion section complete</strong> before drafting the Conclusion",
+            help: "The Conclusion draws from the Discussion. If the Discussion is not written, the Conclusion will be vague or repetitive." },
+          { text: "Write out your study's <strong>theoretical and practical contributions</strong> in plain language first",
+            help: "Not sure about your contributions? Ask your AI:<code>My study is about [topic] using [method]. My key findings are: [list findings]. What are my theoretical contributions (to knowledge) and practical contributions (to industry/policy)?</code>" },
+          { text: "Prepare <strong>2 to 3 future research directions</strong> that follow logically from your findings",
+            help: "Think about what your study could not cover. Ask your AI:<code>My study found [findings] but was limited by [limitations]. What are 3 logical future research directions that would extend this work?</code>" },
+          { text: "Do <strong>not introduce new data or arguments</strong> - the Conclusion only summarises what is already in the paper",
+            help: "The Conclusion restates and synthesises. If you have a new idea while writing it, add it to the Discussion instead." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer skilled at writing confident, clear conclusions.
+
+[TASK]
+Draft a Conclusion section of approximately 500 words for my research paper.
+
+[MY INPUTS]
+Main findings (1–3 sentences): [SUMMARISE YOUR CORE FINDINGS]
+Research objectives - were they achieved? [YES/NO + BRIEF NOTE FOR EACH]
+Theoretical contributions: [WHAT DOES THIS STUDY ADD TO KNOWLEDGE?]
+Practical contributions: [WHAT CAN PRACTITIONERS OR POLICYMAKERS DO WITH THIS?]
+Recommendations: [SPECIFIC RECOMMENDATIONS IF ANY]
+Future research directions: [2 TO 3 SUGGESTED AREAS FOR FUTURE STUDY]
+
+[CONCLUSION STRUCTURE]
+1. Summary of study purpose and approach (1 short paragraph)
+2. Key findings and what they establish
+3. Contributions - theoretical and practical
+4. Recommendations for practice or policy
+5. Future research directions
+6. Closing statement
+
+Formal UK English. Confident and assertive tone. Do NOT introduce new findings here.`,
+        tip: "<strong>End strong.</strong> Avoid weak endings like 'more research is needed.' State clearly what your study has contributed and where the field should go next."
+      },
+      {
+        name: "Full Paper Outline",
+        tags: [["input","Topic + Method + Findings"],["output","Structured Outline"]],
+        checklist: [
+          { text: "Use this <strong>before drafting any section</strong> - it is your roadmap for the entire paper",
+            help: "An outline saves significant time. It ensures you know what goes where before you start writing. Think of it as the skeleton of your paper." },
+          { text: "Have a <strong>working title, research question and objectives</strong> ready",
+            help: "If you do not have these yet, start here. Ask your AI:<code>I want to research [broad area] using [approach]. Help me write a working title, one research question and 3 to 5 objectives.</code>" },
+          { text: "Know your <strong>methodology and key findings</strong> even if only at a high level",
+            help: "You do not need final data. A rough idea is enough - e.g. 'survey of 200 respondents, analysed with SEM, expecting to find X and Y'. This helps the AI structure the outline appropriately." },
+          { text: "Note your <strong>target word count and citation style</strong> so the outline is calibrated correctly",
+            help: "Check your target journal or university guidelines. Common formats: journal articles are typically 6,000 to 8,000 words using APA 7th or IEEE style." },
+          { text: "<strong>Share the outline with your supervisor</strong> before proceeding to full drafting",
+            help: "An outline is the cheapest thing to change. Getting supervisor feedback at this stage avoids major rewrites later." }
+        ],
+        prompt: `[ROLE]
+You are an experienced academic writing coach who helps researchers structure their papers before drafting.
+
+[TASK]
+Create a detailed, section-by-section outline for my research paper.
+
+[MY PAPER DETAILS]
+Working title: [YOUR TITLE]
+Research question: [YOUR RESEARCH QUESTION]
+Objectives: [LIST YOUR OBJECTIVES]
+Methodology: [YOUR RESEARCH DESIGN]
+Key findings: [LIST YOUR MAIN FINDINGS]
+Target journal or field: [JOURNAL NAME OR FIELD]
+Citation style: [APA 7 / IEEE / VANCOUVER / OTHER]
+Word count target: [YOUR TARGET WORD COUNT]
+
+[PLEASE PROVIDE]
+1. Recommended paper structure with section names
+2. For each section: purpose, key points to cover, suggested word count
+3. Logical flow between sections
+4. Suggestions for figures or tables
+5. Any structural cautions based on my methodology and findings
+
+Use UK English throughout.`,
+        tip: "<strong>Use this before drafting any section.</strong> A solid outline saves significant revision time. Always share with your supervisor before proceeding."
+      }
+    ]
+  },
+  5: {
+    title: "Citation Formatting", icon: "📎", eyebrow: "MODULE 05",
+    desc: "Format references correctly, convert between citation styles and audit your in-text citations for accuracy and completeness before submission.",
+    tasks: [
+      {
+        name: "APA 7th Edition Formatter",
+        tags: [["input","Raw Reference Details"],["output","APA 7 References"]],
+        checklist: [
+          { text: "Collect the <strong>raw details</strong> for each reference: author(s), year, title, journal, volume, issue, pages, DOI",
+            help: "You can find these details on the paper itself, or from your database search (Scopus, Google Scholar). Copy and paste the raw details even if messy - The AI will clean them up." },
+          { text: "You can paste <strong>multiple references at once</strong> - separate each clearly",
+            help: "Put each reference on a new line or paragraph. You can paste 10 to 20 references at once and The AI will format all of them." },
+          { text: "Note any <strong>special reference types</strong>: thesis, report, conference paper, website, etc.",
+            help: "APA 7 formats differ by source type. A journal article, book chapter and conference paper each have a different format. Flag anything that is not a standard journal article." },
+          { text: "Have your <strong>DOIs ready</strong> in full format: https://doi.org/...",
+            help: "Find the DOI on the paper's first page or in the database record. The correct format is: https://doi.org/10.xxxx/xxxxx. If a paper has no DOI, note that so the AI can format it correctly without one." }
+        ],
+        prompt: `[ROLE]
+You are an expert in APA 7th edition citation format with meticulous attention to formatting detail.
+
+[TASK]
+Format the reference details below into correct APA 7th edition format.
+
+[RAW REFERENCES]
+Paste each reference on a new line with as many details as you have:
+Author(s), Year, Title, Journal/Book, Volume, Issue, Pages, DOI or URL
+
+[REFERENCES TO FORMAT]
+[PASTE YOUR REFERENCES HERE - ONE PER LINE OR PARAGRAPH]
+
+[PLEASE ALSO]
+1. Flag any missing elements needed for a complete APA 7 reference
+2. Apply hanging indent format notation
+3. Order alphabetically by first author surname
+4. Note any special cases (no author, organisation as author, report, thesis, etc.)
+
+Use UK English for any notes or flags.`,
+        tip: "<strong>Common APA 7 errors:</strong> DOI must be https://doi.org/... | Author initials only | Journal names fully spelled out | Volume italicised, issue in parentheses."
+      },
+      {
+        name: "IEEE Format Formatter",
+        tags: [["input","Raw Reference Details"],["output","IEEE References"]],
+        checklist: [
+          { text: "Collect <strong>author(s), year, title, journal/conference, volume, issue, pages and DOI</strong> for each reference",
+            help: "Copy these from the paper or database record. Even incomplete details are useful - The AI will flag what is missing." },
+          { text: "Note the <strong>order references appear in your text</strong> - IEEE numbers by first appearance, not alphabetically",
+            help: "Unlike APA, IEEE numbers references [1], [2], [3] in the order they first appear in your paper. The first reference you cite becomes [1], the second [2], and so on." },
+          { text: "Flag any <strong>conference papers, standards or patents</strong> as these have different IEEE formats",
+            help: "Conference papers include the conference name and location. Standards include the standard number (e.g. ISO 9001). Patents include the patent number and country. Flag these so the AI applies the correct format." }
+        ],
+        prompt: `[ROLE]
+You are an expert in IEEE citation format used in engineering, technology and computer science publications.
+
+[TASK]
+Format the reference details below into correct IEEE numbered reference format.
+
+[RAW REFERENCES]
+Paste each reference with as many details as you have:
+Author(s), Year, Title, Journal/Conference/Book, Volume, Issue, Pages, DOI
+
+[REFERENCES TO FORMAT]
+[PASTE YOUR REFERENCES HERE]
+
+[PLEASE ALSO]
+1. Number references in the order they would appear in the text [1], [2], [3]
+2. Flag any missing elements
+3. Note any special formats (conference paper, standard, patent, online source)
+
+Use UK English for any notes.`,
+        tip: "<strong>IEEE key rule:</strong> References are numbered in order of first appearance in the text, not alphabetically. Use [1], [2] notation in-text."
+      },
+      {
+        name: "Vancouver Style Formatter",
+        tags: [["input","Raw Reference Details"],["output","Vancouver References"]],
+        checklist: [
+          { text: "Collect <strong>author(s), year, title, journal, volume, issue, pages and DOI</strong> for each reference",
+            help: "Vancouver is commonly used in medical and health sciences. The details needed are the same as other styles - author, year, title, journal, volume, pages and DOI." },
+          { text: "Note the <strong>sequential order</strong> references appear in your text - Vancouver numbers by appearance",
+            help: "Like IEEE, Vancouver numbers references in order of first appearance. The first reference cited becomes (1), the second (2), etc." },
+          { text: "Flag any references with <strong>more than 6 authors</strong> - Vancouver uses 'et al.' after the sixth",
+            help: "If a paper has 7 or more authors, list the first 6 then add 'et al.' Note the total number of authors so the AI can apply this rule correctly." }
+        ],
+        prompt: `[ROLE]
+You are an expert in Vancouver citation style used in medical, health and biomedical sciences publications.
+
+[TASK]
+Format the reference details below into correct Vancouver numbered format.
+
+[RAW REFERENCES]
+Paste each reference with as many details as you have:
+Author(s), Year, Title, Journal, Volume, Issue, Pages, DOI
+
+[REFERENCES TO FORMAT]
+[PASTE YOUR REFERENCES HERE]
+
+[PLEASE ALSO]
+1. Number references sequentially as they appear in the text
+2. Use standard journal abbreviations where applicable
+3. Flag missing elements
+4. Note special formats (book chapter, conference abstract, website)
+
+Use UK English for any notes.`,
+        tip: "<strong>Vancouver key rule:</strong> Author surnames first, then initials without periods. Journal names abbreviated. Up to 6 authors listed, then et al."
+      },
+      {
+        name: "In-Text Citation Checker",
+        tags: [["input","Text + Reference List"],["output","Citation Audit"]],
+        checklist: [
+          { text: "Paste your <strong>paper text section</strong> in full - do not edit or shorten it before pasting",
+            help: "Do not summarise or trim your text. The AI needs to see every citation in context to check it properly." },
+          { text: "Paste your <strong>complete reference list</strong> below the text, clearly separated",
+            help: "Copy your entire reference list. Put a clear separator like '---REFERENCE LIST---' between your paper text and the references so the AI can distinguish them." },
+          { text: "Run this <strong>one section at a time</strong> (Introduction, Literature Review, etc.) for thorough results",
+            help: "Checking one section at a time produces more accurate results. Start with your Literature Review as it typically has the most citations." },
+          { text: "Run this check <strong>at least one week before submission</strong> to allow time for corrections",
+            help: "Citation errors often take time to fix - you may need to find missing DOIs, correct author names or add references you forgot. Give yourself time." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic editor specialising in citation accuracy and reference list integrity.
+
+[TASK]
+Audit the in-text citations in my paper text against my reference list.
+
+[PAPER TEXT]
+[PASTE YOUR PARAGRAPH OR SECTION HERE]
+
+[REFERENCE LIST]
+[PASTE YOUR FULL REFERENCE LIST BELOW THIS LINE]
+
+[PLEASE CHECK FOR]
+1. In-text citations that do not appear in the reference list
+2. References in the list that are not cited in the text
+3. Citation format errors (wrong year, wrong author, missing page for direct quotes)
+4. Claims that appear to need a citation but have none
+5. Direct quotes that are missing page numbers (APA) or reference numbers (IEEE)
+6. Any inconsistencies between in-text and reference list details
+
+Present findings as a numbered issue list. Use UK English throughout.`,
+        tip: "<strong>Run this before submission.</strong> Citation mismatches are one of the most common reasons reviewers flag papers for revision."
+      }
+    ]
+  },
+  6: {
+    title: "Quality Review", icon: "🔬", eyebrow: "MODULE 06",
+    desc: "Use these prompts before submission. Simulate peer review, check argument logic, paraphrase safely and improve readability and flow.",
+    tasks: [
+      {
+        name: "Argument Logic Checker",
+        tags: [["input","Introduction or Discussion"],["output","Logic Audit"]],
+        checklist: [
+          { text: "Paste your <strong>Introduction or Discussion section</strong> - these carry the most argumentative weight",
+            help: "The Introduction sets up your argument. The Discussion interprets your findings. These two sections are where logical errors are most damaging and most common." },
+          { text: "Use this <strong>after your first complete draft</strong>, not while still writing",
+            help: "Checking logic on an incomplete draft wastes time. Finish the section first, then run this prompt to catch issues before your supervisor or reviewer does." },
+          { text: "Be ready to <strong>act on the feedback</strong> - unsupported claims need citations or rewording",
+            help: "When the AI flags an unsupported claim, you have two options: find a citation to support it, or rephrase it as a tentative statement (e.g. 'it is possible that...' instead of 'it is clear that...')." }
+        ],
+        prompt: `[ROLE]
+You are a rigorous academic peer reviewer with a strong analytical background.
+
+[TASK]
+Analyse the logical structure and argument quality of the text I am providing.
+
+[TEXT TO REVIEW]
+[PASTE YOUR INTRODUCTION, DISCUSSION OR ANY SECTION HERE]
+
+[PLEASE CHECK FOR]
+1. Unsupported claims - statements made without evidence or citation
+2. Logical fallacies - faulty reasoning, non sequiturs, false causality
+3. Gaps between evidence presented and conclusions drawn
+4. Circular reasoning
+5. Overgeneralisations or sweeping statements
+6. Contradictions within the text
+
+Present as a numbered list of specific issues with the problematic passage quoted, followed by critique and a suggested correction.
+
+Use UK English throughout. Be direct but constructive.`,
+        tip: "<strong>Use this on your Discussion section first.</strong> A strong argument is your best defence against reviewer rejection."
+      },
+      {
+        name: "Peer Review Simulator",
+        tags: [["input","Full Paper or Sections"],["output","Review Report"]],
+        checklist: [
+          { text: "Use this <strong>at least one week before your target submission date</strong>",
+            help: "A simulated review often surfaces issues that take several days to fix. Leave enough time to act on the feedback before your deadline." },
+          { text: "Paste your <strong>full paper or complete sections</strong> - partial drafts give partial feedback",
+            help: "For the best review, paste your entire paper. If it is too long, paste complete sections (e.g. full Introduction + Literature Review, or full Methods + Results + Discussion)." },
+          { text: "State your <strong>target journal and field</strong> so the simulated reviewer applies the right standards",
+            help: "Different journals have different expectations. A Q1 journal is more demanding than a Q3 journal. If unsure, just state your field (e.g. 'information systems' or 'public health')." },
+          { text: "Be prepared to treat <strong>every major concern as a genuine revision task</strong> before submitting",
+            help: "Do not ignore major concerns. If a simulated reviewer flags it, a real reviewer will likely flag it too. Address every major issue before submission." }
+        ],
+        prompt: `[ROLE]
+You are a senior academic peer reviewer for a Scopus-indexed journal. You are thorough, fair and rigorous.
+
+[TASK]
+Provide a structured peer review report for the paper or sections I am sharing.
+
+[TARGET JOURNAL / FIELD - OPTIONAL]
+[STATE THE JOURNAL OR RESEARCH FIELD IF KNOWN]
+
+[PAPER / SECTIONS TO REVIEW]
+[PASTE YOUR FULL PAPER OR SPECIFIC SECTIONS HERE]
+
+[REVIEW REPORT STRUCTURE]
+1. Summary of the paper (2–3 sentences)
+2. Overall assessment (strengths and weaknesses in 1 paragraph)
+3. Major concerns (numbered - must be addressed before publication)
+4. Minor concerns (numbered - suggestions for improvement)
+5. Specific comments (line-level or section-level feedback)
+6. Decision recommendation:
+   [ ] Accept as is
+   [ ] Minor revisions
+   [ ] Major revisions
+   [ ] Reject - with justification
+
+Be rigorous and honest. Use UK English throughout.`,
+        tip: "<strong>Use this at least one week before submission.</strong> A simulated review often surfaces gaps you have become too close to see. Act on every major concern."
+      },
+      {
+        name: "Safe Paraphrase Assistant",
+        tags: [["input","Original Text + Context"],["output","2 Paraphrase Options"]],
+        checklist: [
+          { text: "Paste the <strong>exact original text</strong> you want to paraphrase - do not pre-edit it",
+            help: "Paste the original text word for word. If you edit it first, the paraphrase may accidentally end up too close to the original, which risks plagiarism." },
+          { text: "Note the <strong>author and year</strong> so you can attach the correct citation to the output",
+            help: "Write the citation details before pasting, e.g. 'This is from Rahman (2023), published in the Journal of X'. The AI will include the suggested citation format in the output." },
+          { text: "Briefly describe <strong>where in your paper</strong> this will be used (context helps the AI match your writing register)",
+            help: "Example: 'This will appear in my Literature Review, under Theme 2 about adoption barriers.' This helps the AI match the tone and vocabulary of that section." },
+          { text: "<strong>Always cite the original author</strong> even after paraphrasing - paraphrasing changes words, not ownership",
+            help: "Paraphrasing without citation is still plagiarism. The idea belongs to the original author. Always include (Author, Year) or the appropriate citation format after the paraphrase." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic writer with deep skill in paraphrasing scholarly content.
+
+[TASK]
+Paraphrase the text below so it can be used safely in my paper with a proper citation.
+
+[ORIGINAL TEXT]
+[PASTE THE TEXT YOU WANT TO PARAPHRASE]
+
+[WHERE THIS WILL BE USED IN MY PAPER]
+[BRIEFLY DESCRIBE THE CONTEXT]
+
+[REQUIREMENTS]
+1. Fully preserve the original meaning
+2. Use completely different sentence structures
+3. Replace vocabulary with precise academic synonyms where natural
+4. Maintain an appropriate academic register
+5. Provide TWO alternative paraphrase versions
+
+After each version, add: "Suggested in-text citation: (Author, Year)"
+
+Use UK English throughout.`,
+        tip: "<strong>Always cite even after paraphrasing.</strong> Paraphrasing changes the words, not the intellectual ownership. The citation is still required."
+      },
+      {
+        name: "Readability & Flow Improver",
+        tags: [["input","Any Section"],["output","Revised Text + Notes"]],
+        checklist: [
+          { text: "Paste <strong>one section at a time</strong> - whole-paper reviews produce less focused feedback",
+            help: "Start with the section you feel least confident about. Common choices: Literature Review (often too wordy) or Discussion (often too thin)." },
+          { text: "Use this <strong>after your argument is finalised</strong> - only improve flow when the content is settled",
+            help: "Polishing text that you later rewrite is wasted effort. Make sure the content and argument are final before improving readability." },
+          { text: "Note if you have any <strong>specific concerns</strong> about a section (e.g. 'too many long sentences' or 'transitions feel abrupt')",
+            help: "If you sense something is off but cannot pinpoint it, say so. Example: 'This paragraph feels clunky but I am not sure why.' The AI will identify the specific issues and suggest fixes." }
+        ],
+        prompt: `[ROLE]
+You are an expert academic editor who improves clarity, flow and readability without changing the scholarly substance.
+
+[TASK]
+Review and improve the readability and flow of the text I am providing.
+
+[TEXT TO IMPROVE]
+[PASTE YOUR PARAGRAPH OR SECTION HERE]
+
+[SPECIFIC CONCERNS - OPTIONAL]
+[NOTE ANY SPECIFIC ISSUES YOU HAVE NOTICED]
+
+[PLEASE ADDRESS]
+1. Sentence variety - vary sentence length and opening structure
+2. Paragraph coherence - each paragraph should have one clear idea
+3. Transitions - smooth connections between sentences and paragraphs
+4. Clarity - replace vague or overly complex phrasing with clear alternatives
+5. Wordiness - remove redundancy without losing meaning
+6. Academic register - ensure the tone is formal but accessible
+
+[OUTPUT FORMAT]
+First: Revised version of the full text
+Then: Brief editor's notes explaining the key changes made
+
+Use UK English throughout. Do not change facts, citations or the author's argument.`,
+        tip: "<strong>Use this on each section separately.</strong> One section at a time gives more focused, useful feedback than pasting an entire paper."
+      }
+    ]
+  }
+};
+
+// ─── MEGA PROMPTS ──────────────────────────────────────────────────────────────
+const megaPrompts = {
+  litreview: {
+    title: "Literature Review Paper",
+    icon: "📚",
+    desc: "For writing a full structured literature review paper - systematic review, thematic review or narrative review.",
+    checklist: [
+      { text: "Have a <strong>clear working title</strong> for your paper",
+        help: "Not sure about your title? Ask your AI:<code>My research is about [topic] in the context of [country/field]. Suggest 3 working titles for a literature review paper that are specific, descriptive and suitable for a Scopus-indexed journal.</code>" },
+      { text: "Know your <strong>research topic, anchor country/context and target audience</strong>",
+        help: "Be specific. Instead of 'digital transformation', say 'digital transformation adoption in Malaysian manufacturing SMEs'. The anchor country and context help the AI frame the review appropriately." },
+      { text: "List the <strong>4 to 8 themes</strong> you want the paper to cover",
+        help: "If you have not identified themes yet, use the Cross-Paper Theme Mapper from Reference Synthesis first. Or ask your AI:<code>I am writing a literature review on [topic]. Based on common themes in this field, suggest 5 to 6 themes I should cover.</code>" },
+      { text: "Know your <strong>synthesis approach</strong>: thematic, chronological or hybrid",
+        help: "Thematic organises by topic. Chronological organises by time. Hybrid uses themes but traces each one historically. Most literature reviews use thematic or hybrid." },
+      { text: "Decide on <strong>citation style, word count target and target journal</strong>",
+        help: "Check your target journal's author guidelines for required citation style and word limits. Common defaults: APA 7th edition, 5,000 to 7,000 words." },
+      { text: "Have your <strong>writing style preferences</strong> ready (tone, UK/US English, sentence variety rules)",
+        help: "The prompt includes default writing rules. Adjust them to match your journal's style: UK or US English, formal or semi-formal tone, and any specific style requirements." },
+      { text: "Know what <strong>subsequent study</strong> this review is meant to support (if any)",
+        help: "If this literature review leads to a follow-up study (e.g. a DSR artefact, a survey, an experiment), state it. The AI will position the review to set up that next study." }
+    ],
+    prompt: `[ROLE]
+You are an academic research assistant and expert academic writer specialising in [YOUR FIELD - e.g. smart manufacturing, public health, education technology].
+
+[PAPER TITLE]
+[YOUR FULL WORKING TITLE HERE]
+
+[PAPER STRUCTURE]
+Write a full structured literature review paper with the following sections:
+Abstract, Introduction, Methodology (literature search strategy), Thematic Review Sections, Discussion and Conclusion.
+
+[SYNTHESIS APPROACH]
+[DESCRIBE YOUR APPROACH - e.g. "Thematic synthesis as the primary structure. Within Theme 1, use a chronological narrative. All other themes organised thematically."]
+
+[THEMES TO COVER]
+1. [THEME 1 - e.g. Evolution of the concept from origins to present day]
+2. [THEME 2 - e.g. Technology enablers mapped to specific practices]
+3. [THEME 3 - e.g. National policy landscape in target countries]
+4. [THEME 4 - e.g. Key performance outcomes reported in literature]
+5. [THEME 5 - e.g. Implementation challenges for SMEs]
+6. [THEME 6 - e.g. Gaps and future research directions]
+[ADD MORE AS NEEDED]
+
+[GEOGRAPHIC FOCUS]
+Anchor country: [YOUR ANCHOR COUNTRY - e.g. Malaysia]
+Additional countries: [LIST OTHERS - e.g. Indonesia, Thailand, Vietnam, Singapore, Philippines]
+
+[COMPARATIVE TABLE]
+Include a comparative table covering at least [8] reviewed studies or frameworks.
+Columns: Author/Year, Country Context, Methodology, Technology or Framework Used, Reported Outcomes.
+
+[POSITIONING STATEMENT]
+Position this paper to support a subsequent [YOUR NEXT STUDY TYPE - e.g. Design Science Research study / empirical study / framework development] on [YOUR NEXT STUDY TOPIC].
+
+[CITATION STYLE]
+[APA 7th edition / IEEE / Vancouver - specify format: parenthetical (Author, Year) or numbered]
+Where specific citations are needed, indicate them as placeholders to be populated later.
+
+[TARGET LENGTH]
+Approximately [5,000 to 7,000] words. Structure each section with clear subheadings.
+
+[WRITING STYLE RULES]
+1. Formal academic tone. [UK / US] English throughout.
+2. Do not use em dashes anywhere in the paper.
+3. In serial lists joined by "and" or "or", do NOT place a comma before the conjunction.
+4. Vary sentence lengths: mix short (8–15 words), medium (15–29 words) and longer (30+ words) sentences. At least 25% of sentences should be under 15 words.
+5. Vary paragraph lengths: mix 2-sentence, 3–4 sentence and 5-sentence paragraphs.
+6. Insert 3 to 5 rhetorical questions naturally at transition points between sections.
+7. Diversify sentence openers. Do not start more than 20% of sentences with "The."
+8. Use straightforward academic English. Write "this study shows" not "this study elucidates." Write "important" not "of paramount significance."
+9. Do not use synonym swapping as a strategy. Use the most direct and accurate word for each concept.`,
+    anatomy: [
+      { tag: "at-role", label: "ROLE", desc: "Defines the AI's expertise and specialisation for this task" },
+      { tag: "at-context", label: "CONTEXT", desc: "Title, themes, geographic focus and positioning statement" },
+      { tag: "at-task", label: "TASK", desc: "Paper structure, synthesis approach and comparative table requirement" },
+      { tag: "at-format", label: "FORMAT", desc: "Citation style, word count target and subheading structure" },
+      { tag: "at-rules", label: "WRITING RULES", desc: "Sentence variety, tone, serial comma rules and style constraints" }
+    ]
+  },
+  empirical: {
+    title: "Empirical Research Paper",
+    icon: "🔬",
+    desc: "For writing a full empirical paper - quantitative, qualitative or mixed methods - with IMRaD structure.",
+    checklist: [
+      { text: "Have your <strong>research question and objectives</strong> written out clearly",
+        help: "If you need help, ask your AI:<code>My research is about [topic] using [method]. Help me write a clear research question and 3 to 5 specific objectives.</code>" },
+      { text: "Know your <strong>methodology</strong> in detail: design, sample, instruments, analysis",
+        help: "Write down: research design (survey, case study, experiment), sample size and selection, data collection instrument and analysis technique. If unsure about any element, use the Methodology prompt in Paper Drafting first." },
+      { text: "Have your <strong>key findings</strong> summarised in plain language",
+        help: "Write each finding as a simple statement. Example: 'Organisational readiness has the strongest effect on adoption (beta = 0.42, p < 0.001)' or 'All 12 participants reported lack of training as the main barrier'." },
+      { text: "Know which <strong>prior studies</strong> your findings support, extend or contradict",
+        help: "For each finding, identify at least one paper it relates to. Write: 'Finding 1 supports Smith (2021)' or 'Finding 2 contradicts Lee (2020)'. This drives your Discussion section." },
+      { text: "Decide on <strong>citation style, word count and target journal</strong>",
+        help: "Check your target journal's author guidelines. Common empirical paper length: 6,000 to 8,000 words. Common styles: APA 7 (social sciences), IEEE (engineering/IT)." }
+    ],
+    prompt: `[ROLE]
+You are an expert academic writer with extensive experience in empirical research writing across [YOUR FIELD].
+
+[PAPER TITLE]
+[YOUR FULL WORKING TITLE HERE]
+
+[PAPER STRUCTURE]
+Write a full empirical research paper using IMRaD structure:
+Abstract, Introduction, Literature Review, Methodology, Results, Discussion, Conclusion and References.
+
+[RESEARCH DETAILS]
+Research question: [YOUR RESEARCH QUESTION]
+Research objectives: [LIST YOUR OBJECTIVES]
+Research paradigm: [POSITIVIST / INTERPRETIVIST / PRAGMATIST]
+Research design: [SURVEY / CASE STUDY / EXPERIMENT / MIXED METHODS / OTHER]
+Data collection: [METHOD AND INSTRUMENTS USED]
+Sample: [SIZE, SELECTION METHOD, CONTEXT / SETTING]
+Analysis technique: [SEM / THEMATIC ANALYSIS / REGRESSION / OTHER]
+Key findings: [LIST YOUR MAIN FINDINGS]
+Theoretical framework: [FRAMEWORK OR THEORY USED]
+
+[PRIOR STUDIES FOR DISCUSSION]
+Finding 1 relates to: [Author, Year] - [HOW IT RELATES]
+Finding 2 relates to: [Author, Year] - [HOW IT RELATES]
+[ADD MORE AS NEEDED]
+
+[THEORETICAL AND PRACTICAL CONTRIBUTIONS]
+Theoretical: [WHAT DOES THIS STUDY ADD TO KNOWLEDGE?]
+Practical: [WHAT CAN PRACTITIONERS DO WITH THIS?]
+
+[LIMITATIONS]
+[LIST YOUR STUDY'S LIMITATIONS HONESTLY]
+
+[CITATION STYLE]
+[APA 7 / IEEE / VANCOUVER - specify format]
+Where specific citations are needed, indicate as placeholders to be populated later.
+
+[TARGET LENGTH]
+Approximately [6,000 to 8,000] words. Use clear subheadings throughout.
+
+[WRITING STYLE RULES]
+1. Formal academic tone. [UK / US] English throughout.
+2. Do not use em dashes anywhere in the paper.
+3. In serial lists joined by "and" or "or", do NOT place a comma before the conjunction.
+4. Vary sentence lengths: mix short (8–15 words), medium (15–29 words) and longer (30+ words) sentences.
+5. Vary paragraph lengths across sections.
+6. Use straightforward academic English. Prefer clear, direct phrasing.
+7. Results section: objective tone, past tense, no interpretation.
+8. Discussion section: interpret findings, compare to prior work, discuss implications and limitations.`,
+    anatomy: [
+      { tag: "at-role", label: "ROLE", desc: "Defines the AI's expertise and writing experience for empirical papers" },
+      { tag: "at-context", label: "RESEARCH DETAILS", desc: "Full methodology, sample, findings and theoretical framework" },
+      { tag: "at-task", label: "TASK", desc: "IMRaD structure with explicit guidance for each section" },
+      { tag: "at-format", label: "FORMAT", desc: "Citation style, word count and subheading requirements" },
+      { tag: "at-rules", label: "WRITING RULES", desc: "Tone, sentence variety, section-specific register guidance" }
+    ]
+  },
+  dsr: {
+    title: "Design Science Research Paper",
+    icon: "⚙️",
+    desc: "For writing a DSR paper that proposes, builds and evaluates an artefact - framework, model, system or tool.",
+    checklist: [
+      { text: "Have your <strong>research problem and motivation</strong> clearly articulated",
+        help: "Ask your AI:<code>I am developing [type of artefact] for [purpose] in [context]. Help me write a clear problem statement and motivation for a Design Science Research paper.</code>" },
+      { text: "Know your <strong>DSR methodology</strong>: which framework are you following (Hevner, Peffers, etc.)",
+        help: "The most common DSR frameworks are Peffers et al. (2007) DSRM and Hevner et al. (2004) guidelines. If unsure, ask your AI:<code>What are the main DSR methodological frameworks and which one is best suited for [your artefact type]?</code>" },
+      { text: "Have your <strong>artefact described</strong> in detail: type, components, design principles",
+        help: "Describe what you built: is it a framework, model, prototype, algorithm or tool? List its components and the design principles that guided its construction." },
+      { text: "Know your <strong>evaluation method and results</strong>",
+        help: "DSR requires artefact evaluation. Common methods: expert review, case study, experiment, simulation or survey. Summarise what the evaluation showed about the artefact's effectiveness." },
+      { text: "Prepare your <strong>design principles and contribution to knowledge</strong>",
+        help: "Design principles are the lessons learned from building and evaluating the artefact. Example: 'DP1: The framework should include a feedback loop to enable iterative improvement.' These are a key contribution of DSR papers." }
+    ],
+    prompt: `[ROLE]
+You are an expert academic writer specialising in Design Science Research (DSR) papers in [YOUR FIELD - e.g. information systems, manufacturing, education technology].
+
+[PAPER TITLE]
+[YOUR FULL WORKING TITLE HERE]
+
+[PAPER STRUCTURE]
+Write a full DSR paper with the following sections:
+Abstract, Introduction, Theoretical Background and Literature Review, Research Methodology (DSR), Artefact Design and Development, Evaluation, Discussion, Conclusion and References.
+
+[RESEARCH DETAILS]
+Research problem: [STATE THE PROBLEM CLEARLY]
+Research motivation: [WHY DOES THIS PROBLEM NEED SOLVING?]
+DSR framework used: [e.g. Hevner et al. (2004) / Peffers et al. (2007) DSRM]
+DSR activities: [Identify Problem, Define Objectives, Design & Develop, Demonstrate, Evaluate, Communicate]
+
+[ARTEFACT DETAILS]
+Artefact type: [FRAMEWORK / MODEL / METHOD / SYSTEM / TOOL]
+Artefact name: [NAME OF YOUR ARTEFACT]
+Key components: [LIST THE MAIN COMPONENTS OR ELEMENTS]
+Design principles: [LIST THE DESIGN PRINCIPLES THAT GUIDED DEVELOPMENT]
+Theoretical grounding: [THEORIES OR FRAMEWORKS THE ARTEFACT IS BUILT ON]
+
+[EVALUATION]
+Evaluation method: [EXPERT REVIEW / CASE STUDY / PILOT TEST / SIMULATION]
+Evaluation participants or context: [WHO / WHERE / WHEN]
+Evaluation results: [SUMMARISE WHAT THE EVALUATION SHOWED]
+
+[CONTRIBUTIONS]
+To knowledge: [WHAT DESIGN KNOWLEDGE DOES THIS CONTRIBUTE?]
+To practice: [HOW CAN PRACTITIONERS USE THIS ARTEFACT?]
+
+[CITATION STYLE]
+[APA 7 / IEEE - specify format]
+Where specific citations are needed, indicate as placeholders to be populated later.
+
+[TARGET LENGTH]
+Approximately [6,000 to 8,000] words. Use clear subheadings for each DSR activity.
+
+[WRITING STYLE RULES]
+1. Formal academic tone. [UK / US] English throughout.
+2. Do not use em dashes anywhere in the paper.
+3. In serial lists joined by "and" or "or", do NOT place a comma before the conjunction.
+4. Vary sentence lengths and paragraph lengths throughout.
+5. Use straightforward academic English. Prefer clear, direct phrasing.
+6. The artefact description should be precise and technical - avoid vague generalisations.
+7. The evaluation section should be evidence-based and objective in tone.`,
+    anatomy: [
+      { tag: "at-role", label: "ROLE", desc: "DSR specialist writer with field-specific expertise" },
+      { tag: "at-context", label: "RESEARCH DETAILS", desc: "Problem, motivation, DSR framework and artefact specification" },
+      { tag: "at-task", label: "TASK", desc: "Full DSR paper structure aligned with Hevner or Peffers framework" },
+      { tag: "at-format", label: "FORMAT", desc: "Citation style, word count and activity-based subheadings" },
+      { tag: "at-rules", label: "WRITING RULES", desc: "Precision for artefact description, evidence-based evaluation tone" }
+    ]
+  },
+  proposal: {
+    title: "Research Proposal",
+    icon: "📋",
+    desc: "For writing a postgraduate or grant research proposal - Master's, PhD or competitive funding application.",
+    checklist: [
+      { text: "Have your <strong>research title, problem and objectives</strong> clearly defined",
+        help: "If you are starting from scratch, ask your AI:<code>I want to research [broad area] for my [Master's/PhD/grant]. Help me write a working title, a problem statement and 3 to 5 research objectives.</code>" },
+      { text: "Know your <strong>theoretical framework and methodology</strong>",
+        help: "A proposal must state how you will do the research. If unsure, ask your AI:<code>I want to study [topic] using [quantitative/qualitative/mixed methods/DSR]. What theoretical framework and research methodology should I use? Explain the options.</code>" },
+      { text: "Have a <strong>preliminary literature review</strong> with 5 to 10 key references",
+        help: "You do not need a full review for the proposal - just 5 to 10 key papers that establish the problem, the theoretical basis and the gap. Use Reference Discovery and Reference Processing to find and process these." },
+      { text: "Know your <strong>expected contributions</strong> to knowledge and practice",
+        help: "Ask your AI:<code>If my study achieves its objectives on [topic], what would be the expected theoretical contributions (to knowledge) and practical contributions (to industry/policy)?</code>" },
+      { text: "Have your <strong>timeline and scope</strong> ready if this is for a grant application",
+        help: "For grant proposals, include a timeline (e.g. Phase 1: Literature review - 3 months, Phase 2: Data collection - 4 months). For Master's/PhD proposals, align with your programme's milestones." }
+    ],
+    prompt: `[ROLE]
+You are an expert academic writing coach with experience helping postgraduate researchers and academics write competitive research proposals.
+
+[PROPOSAL TYPE]
+[MASTER'S PROPOSAL / PhD PROPOSAL / GRANT APPLICATION - specify]
+
+[PAPER TITLE]
+[YOUR RESEARCH TITLE]
+
+[PROPOSAL STRUCTURE]
+Write a complete research proposal with the following sections:
+Title, Abstract, Background and Problem Statement, Research Objectives, Research Questions, Literature Review (preliminary), Theoretical / Conceptual Framework, Research Methodology, Expected Contributions, Timeline (if applicable), References.
+
+[RESEARCH DETAILS]
+Research problem: [DESCRIBE THE PROBLEM IN 2 TO 3 SENTENCES]
+Research objectives: [LIST YOUR OBJECTIVES]
+Research questions: [LIST YOUR RESEARCH QUESTIONS]
+Theoretical framework: [THEORY OR FRAMEWORK YOU ARE BUILDING ON]
+Methodology: [YOUR RESEARCH DESIGN AND APPROACH]
+Target context: [COUNTRY / SECTOR / INDUSTRY / INSTITUTION]
+Key references: [LIST 5 TO 10 IMPORTANT REFERENCES: Author, Year, Topic]
+
+[EXPECTED CONTRIBUTIONS]
+To knowledge: [WHAT NEW KNOWLEDGE WILL THIS PRODUCE?]
+To practice: [HOW WILL THIS BENEFIT PRACTITIONERS?]
+To policy: [ANY POLICY IMPLICATIONS - IF APPLICABLE]
+
+[CITATION STYLE]
+[APA 7 / IEEE - specify format]
+
+[TARGET LENGTH]
+Approximately [2,000 to 4,000] words depending on institution requirements.
+
+[WRITING STYLE RULES]
+1. Formal academic tone. [UK / US] English throughout.
+2. Do not use em dashes anywhere.
+3. In serial lists joined by "and" or "or", do NOT place a comma before the conjunction.
+4. Vary sentence lengths throughout.
+5. The Problem Statement should be compelling and evidence-based - not vague.
+6. Objectives must be specific, measurable and achievable.
+7. Use straightforward academic English. Clear and direct phrasing throughout.`,
+    anatomy: [
+      { tag: "at-role", label: "ROLE", desc: "Proposal writing coach with postgraduate and grant writing experience" },
+      { tag: "at-context", label: "RESEARCH DETAILS", desc: "Problem, objectives, questions, framework and key references" },
+      { tag: "at-task", label: "TASK", desc: "Full proposal structure appropriate to proposal type" },
+      { tag: "at-format", label: "FORMAT", desc: "Citation style, word count and institution-appropriate length" },
+      { tag: "at-rules", label: "WRITING RULES", desc: "Compelling problem statement, specific objectives, clear tone" }
+    ]
+  }
+};
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function showHome() {
+  setActiveNav('nav-home');
+  const allMods = [
+    { id:1, ...modules[1] }, { id:2, ...modules[2] }, { id:3, ...modules[3] },
+    { id:4, ...modules[4] }, { id:5, ...modules[5] }, { id:6, ...modules[6] }
+  ];
+  document.getElementById('right-panel').innerHTML = `
+    <div class="welcome">
+      <div class="welcome-heading">Your research, <em>sharper and faster.</em></div>
+      <div class="welcome-body">A structured prompt library for experienced academic researchers. Pick a module, select a task, complete the pre-use checklist, copy the prompt and paste it into your preferred AI tool.</div>
+      <div class="welcome-grid">
+        ${allMods.map(m => `
+          <div class="welcome-card" onclick="showModule(${m.id})">
+            <div class="wc-icon">${m.icon}</div>
+            <div class="wc-title">${m.title}</div>
+            <div class="wc-desc">${m.desc}</div>
+          </div>`).join('')}
+        <div class="welcome-card" onclick="showModule(7)">
+          <div class="wc-icon">⚡</div>
+          <div class="wc-title">Mega Prompt Builder</div>
+          <div class="wc-desc">Full paper mega prompts for literature reviews, empirical papers, DSR and proposals.</div>
+        </div>
+      </div>
+      <div class="how-to">
+        <div class="how-to-title">How to use this library</div>
+        <div class="how-to-steps">
+          <div class="how-step"><div class="how-step-num">1</div><span>Choose a prompt template from the sidebar that matches where you are in your research process</span></div>
+          <div class="how-step"><div class="how-step-num">2</div><span>Click a task to expand it. Read the <strong>pre-use checklist</strong> carefully and prepare every item before proceeding. If you skip preparation, the AI output will be vague or generic</span></div>
+          <div class="how-step"><div class="how-step-num">3</div><span>Not sure how to prepare an item? Click <strong>Need help?</strong> next to any checklist item for step-by-step guidance and ready-made prompts you can ask your AI first</span></div>
+          <div class="how-step"><div class="how-step-num">4</div><span>Click <strong>Copy Prompt</strong>, paste it into your preferred AI tool, then replace all <strong>[PLACEHOLDER]</strong> fields with your actual content before sending</span></div>
+          <div class="how-step"><div class="how-step-num">5</div><span>For a full paper in one go, use the <strong>Mega Prompt Builder</strong> in the sidebar under Advanced</span></div>
+        </div>
+      </div>
+      <div class="ai-tools">
+        <div class="ai-tools-title">Recommended AI tools with Deep Research</div>
+        <div class="ai-tools-desc">These prompts work best with AI models that support deep research, extended thinking and long-form output. We recommend the following tools:</div>
+        <div class="ai-tools-grid">
+          <a class="ai-tool-card" href="https://chatgpt.com" target="_blank" rel="noopener">
+            <div class="ai-tool-name">ChatGPT</div>
+            <div class="ai-tool-feature">Deep Research</div>
+            <div class="ai-tool-desc">OpenAI's assistant with web browsing and deep research mode</div>
+          </a>
+          <a class="ai-tool-card" href="https://claude.ai" target="_blank" rel="noopener">
+            <div class="ai-tool-name">Claude</div>
+            <div class="ai-tool-feature">Research</div>
+            <div class="ai-tool-desc">Anthropic's assistant with research mode and long-form writing</div>
+          </a>
+          <a class="ai-tool-card" href="https://gemini.google.com" target="_blank" rel="noopener">
+            <div class="ai-tool-name">Gemini</div>
+            <div class="ai-tool-feature">Deep Research</div>
+            <div class="ai-tool-desc">Google's assistant with deep research and large context window</div>
+          </a>
+          <a class="ai-tool-card" href="https://chat.qwen.ai" target="_blank" rel="noopener">
+            <div class="ai-tool-name">Qwen Studio</div>
+            <div class="ai-tool-feature">Deep Research</div>
+            <div class="ai-tool-desc">Alibaba's open-source assistant with deep research capabilities</div>
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showModule(id) {
+  setActiveNav('nav-' + id);
+  if (id === 7) { showMegaModule(); return; }
+  const mod = modules[id];
+  document.getElementById('right-panel').innerHTML = `
+    <div class="module-header">
+      <div class="module-heading">${mod.icon} ${mod.title}</div>
+      <div class="module-desc">${mod.desc}</div>
+    </div>
+    <div class="task-list">
+      ${mod.tasks.map((task, idx) => `
+        <div class="task-card" id="task-${id}-${idx}">
+          <div class="task-header" onclick="toggleTask('task-${id}-${idx}')">
+            <span class="task-num">${String(idx+1).padStart(2,'0')}</span>
+            <span class="task-name">${task.name}</span>
+            <div class="task-tags">${task.tags.map(([t,l])=>`<span class="task-tag ${t}">${l}</span>`).join('')}</div>
+            <span class="task-chevron">›</span>
+          </div>
+          <div class="task-body">
+            <div class="checklist-section">
+              <div class="checklist-label">Before You Use This Prompt</div>
+              <div class="checklist-subtitle">Complete all items below. The quality of the AI output depends directly on the quality of your input. If you are unsure about any item, click <strong>Need help?</strong> for guidance.</div>
+              <div class="checklist-items">
+                ${task.checklist.map((item, ci) => `
+                  <div class="checklist-item">
+                    <input type="checkbox" id="chk-${id}-${idx}-${ci}">
+                    <div class="checklist-item-content">
+                      <label for="chk-${id}-${idx}-${ci}">${item.text}</label>
+                      ${item.help ? ` <button class="checklist-help-toggle" onclick="toggleHelp(this)">Need help?</button>
+                      <div class="checklist-help-box">${item.help}</div>` : ''}
+                    </div>
+                  </div>`).join('')}
+              </div>
+            </div>
+            <div class="placeholder-reminder">Replace all <span>[PLACEHOLDER]</span> fields with your actual content before sending to your AI.</div>
+            <div class="prompt-section">
+              <div class="prompt-label">
+                <span>PROMPT - COPY AND PASTE INTO CLAUDE</span>
+                <button class="copy-btn" onclick="copyPrompt('prompt-${id}-${idx}', this)">Copy Prompt</button>
+              </div>
+              <div class="prompt-box" id="prompt-${id}-${idx}">${formatPrompt(task.prompt)}</div>
+            </div>
+            <div class="task-divider"></div>
+            <div class="tip-section">
+              <span class="tip-icon">💡</span>
+              <span class="tip-text">${task.tip}</span>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  document.getElementById('right-panel').scrollTop = 0;
+}
+
+function showMegaModule() {
+  const keys = Object.keys(megaPrompts);
+  document.getElementById('right-panel').innerHTML = `
+    <div class="module-header">
+      <div class="module-heading">⚡ Mega Prompt Builder</div>
+      <div class="module-desc">A Mega Prompt is a single, comprehensive prompt that instructs the AI to write an entire research paper or major document from start to finish. It defines the role, paper structure, content scope, writing style rules and output format all in one block.</div>
+    </div>
+    <div class="mega-intro">
+      <div class="mega-intro-title">What is a Mega Prompt?</div>
+      <div class="mega-intro-body">
+        Unlike a <strong>Prompt Template</strong> (which handles one specific task), a <strong>Mega Prompt</strong> hands the AI the full picture: who it is, what it is writing, how it should be structured, what rules to follow and how long the output should be. Think of it as a complete project brief for your AI. The more precisely you fill in the placeholders, the closer the output will be to a publication-ready draft.
+      </div>
+    </div>
+    <div class="mega-grid">
+      ${keys.map(k => `
+        <div class="mega-type-card" id="mtc-${k}" onclick="selectMegaType('${k}')">
+          <div class="mtc-icon">${megaPrompts[k].icon}</div>
+          <div class="mtc-title">${megaPrompts[k].title}</div>
+          <div class="mtc-desc">${megaPrompts[k].desc}</div>
+        </div>`).join('')}
+    </div>
+    ${keys.map(k => `
+      <div class="mega-prompt-area" id="mega-area-${k}">
+        <div class="mega-section-title">${megaPrompts[k].icon} ${megaPrompts[k].title} - Mega Prompt</div>
+        <div class="mega-section-desc">Complete the pre-use checklist below, then copy the mega prompt and paste it into your preferred AI tool. Replace every <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px">[PLACEHOLDER]</span> with your actual content before sending.</div>
+        <div class="checklist-section" style="border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;">
+          <div class="checklist-label">Before You Use This Mega Prompt</div>
+          <div class="checklist-subtitle">Complete all items below. The quality of the AI output depends directly on the quality of your input. If you are unsure about any item, click <strong>Need help?</strong> for guidance.</div>
+          <div class="checklist-items">
+            ${megaPrompts[k].checklist.map((item, ci) => `
+              <div class="checklist-item">
+                <input type="checkbox" id="mchk-${k}-${ci}">
+                <div class="checklist-item-content">
+                  <label for="mchk-${k}-${ci}">${item.text}</label>
+                  ${item.help ? ` <button class="checklist-help-toggle" onclick="toggleHelp(this)">Need help?</button>
+                  <div class="checklist-help-box">${item.help}</div>` : ''}
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="mega-copy-bar">
+          <span class="mega-copy-bar-label">Full Mega Prompt</span>
+          <button class="mega-copy-btn" id="mcpy-${k}" onclick="copyMegaPrompt('mega-prompt-${k}', 'mcpy-${k}')">⬇ Copy Mega Prompt</button>
+        </div>
+        <div class="mega-prompt-box" id="mega-prompt-${k}">${formatMegaPrompt(megaPrompts[k].prompt)}</div>
+        <div class="mega-anatomy">
+          <div class="anatomy-title">Anatomy of This Mega Prompt</div>
+          <div class="anatomy-list">
+            ${megaPrompts[k].anatomy.map(a => `
+              <div class="anatomy-item">
+                <span class="anatomy-tag ${a.tag}">${a.label}</span>
+                <span>${a.desc}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`).join('')}`;
+  document.getElementById('right-panel').scrollTop = 0;
+}
+
+function selectMegaType(key) {
+  document.querySelectorAll('.mega-type-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.mega-prompt-area').forEach(a => a.classList.remove('visible'));
+  document.getElementById('mtc-' + key).classList.add('selected');
+  document.getElementById('mega-area-' + key).classList.add('visible');
+  setTimeout(() => {
+    document.getElementById('mega-area-' + key).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function copyMegaPrompt(promptId, btnId) {
+  const el = document.getElementById(promptId);
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    const btn = document.getElementById(btnId);
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⬇ Copy Mega Prompt'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+function formatPrompt(text) {
+  return text
+    .replace(/\[([A-Z][A-Z\s\/0-9\-–']+)\]/g, '<span class="placeholder">[$1]</span>')
+    .replace(/(\[ROLE\]|\[TASK\]|\[PLEASE PROVIDE\]|\[PLEASE EXTRACT\]|\[PLEASE ASSESS\]|\[PLEASE MAP\]|\[PLEASE IDENTIFY\]|\[PLEASE COMPARE[^\]]*\]|\[PLEASE CHECK FOR\]|\[PLEASE TRACE\]|\[REQUIREMENTS\]|\[OUTPUT FORMAT\]|\[PLEASE ADDRESS\]|\[REVIEW REPORT STRUCTURE\]|\[INTRODUCTION STRUCTURE\]|\[SUMMARY STRUCTURE REQUIRED\]|\[ABSTRACT STRUCTURE\]|\[CONCLUSION STRUCTURE\]|\[DISCUSSION STRUCTURE\]|\[METHODOLOGY STRUCTURE\]|\[RESULTS STRUCTURE\]|\[REVIEW STRUCTURE\]|\[SOURCE INPUT\])/g, '<span class="instruction">$1</span>')
+    .replace(/\n/g, '<br>');
+}
+
+function formatMegaPrompt(text) {
+  return text
+    .replace(/\[([A-Z][A-Z\s\/0-9\-–'.,]+)\]/g, '<span class="placeholder">[$1]</span>')
+    .replace(/(\[ROLE\]|\[PAPER TITLE\]|\[PAPER STRUCTURE\]|\[SYNTHESIS APPROACH\]|\[THEMES TO COVER\]|\[GEOGRAPHIC FOCUS\]|\[COMPARATIVE TABLE\]|\[POSITIONING STATEMENT\]|\[CITATION STYLE\]|\[TARGET LENGTH\]|\[WRITING STYLE RULES\]|\[RESEARCH DETAILS\]|\[ARTEFACT DETAILS\]|\[EVALUATION\]|\[CONTRIBUTIONS\]|\[PROPOSAL TYPE\]|\[PROPOSAL STRUCTURE\]|\[PRIOR STUDIES FOR DISCUSSION\]|\[THEORETICAL AND PRACTICAL CONTRIBUTIONS\]|\[LIMITATIONS\]|\[EXPECTED CONTRIBUTIONS\])/g, '<span class="section-head">$1</span>')
+    .replace(/\n/g, '<br>');
+}
+
+function toggleTask(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function toggleHelp(btn) {
+  const box = btn.nextElementSibling;
+  box.classList.toggle('open');
+  btn.textContent = box.classList.contains('open') ? 'Hide help' : 'Need help?';
+}
+
+function copyPrompt(promptId, btn) {
+  const el = document.getElementById(promptId);
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.module-btn').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+showHome();
+</script>
+</body>
+</html>
